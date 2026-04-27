@@ -1,0 +1,17 @@
+{
+    "name": "srvc.atom",
+    "version": "0.1.0",
+    "private": true,
+    "description": "AtoM service runtime and plugin integration for the News Media Tracker workspace.",
+    "license": "MIT",
+    "scripts": {
+        "atom.stack.up": "node scripts/atom-stack.cjs up",
+        "atom.stack.ps": "node scripts/atom-stack.cjs ps",
+        "atom.stack.readiness": "node scripts/atom-stack.cjs readiness",
+        "atom.stack.down": "node scripts/atom-stack.cjs down",
+        "atom.bootstrap": "node scripts/atom-bootstrap.cjs",
+        "atom.bootstrap.force": "node scripts/atom-bootstrap.cjs --force",
+        "atom.bootstrap.reset": "node scripts/atom-bootstrap-reset.cjs",
+        "atom.bootstrap.reseed": "node scripts/atom-bootstrap-reset.cjs --reseed"
+    }
+}
