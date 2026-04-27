@@ -1,0 +1,32 @@
+{
+    "name": "srvc.atom",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "workspace-service",
+    "runServices": [
+        "atom-db",
+        "atom-cache",
+        "atom-host",
+        "workspace-service"
+    ],
+    "workspaceFolder": "/workspace/srvc.atom",
+    "shutdownAction": "stopCompose",
+    "forwardPorts": [
+        62080,
+        63306,
+        63790
+    ],
+    "portsAttributes": {
+        "62080": {
+            "label": "AtoM Host"
+        },
+        "63306": {
+            "label": "AtoM Database (MariaDB)"
+        },
+        "63790": {
+            "label": "AtoM Cache (Redis)"
+        }
+    },
+    "remoteUser": "vscode"
+}
