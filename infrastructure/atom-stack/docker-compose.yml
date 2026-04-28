@@ -40,6 +40,24 @@ services:
     networks:
       - atom-host
 
+  atom:
+    image: ${ATOM_APP_IMAGE:-qubit/atom:2.8.2}
+    restart: unless-stopped
+    depends_on:
+      atom-db:
+        condition: service_healthy
+      atom-cache:
+        condition: service_healthy
+    environment:
+      ATOM_DB_HOST: atom-db
+      ATOM_DB_NAME: ${ATOM_DB_NAME:-atom}
+      ATOM_DB_USER: ${ATOM_DB_USER:-atom}
+      ATOM_DB_PASSWORD: ${ATOM_DB_PASSWORD:-REPLACE_WITH_SECURE_DB_PASSWORD}
+      ATOM_CACHE_HOST: atom-cache
+      ATOM_CACHE_PORT: 6379
+    networks:
+      - atom-host
+
   atom-host:
     image: ${ATOM_HOST_IMAGE:-nginx:1.27.0-alpine}
     restart: unless-stopped
@@ -51,6 +69,8 @@ services:
         condition: service_healthy
       atom-cache:
         condition: service_healthy
+      atom:
+        condition: service_started
     ports:
       - '${ATOM_HOST_PORT:-62080}:${ATOM_HOST_INTERNAL_PORT:-8080}'
     volumes:
