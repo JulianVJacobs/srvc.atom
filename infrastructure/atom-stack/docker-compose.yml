@@ -90,6 +90,10 @@ services:
       NODE_ENV: development
     volumes:
       - atom-src:/atom/src
+      # Plugin-owned bind mount: mounts the sfArticlePlugin scaffold directly
+      # into the AtoM plugins directory without touching core AtoM source.
+      # Lane: [1.1.0][01-native-shell-contract]
+      - ../../atom/plugins/sfArticlePlugin:/atom/src/plugins/sfArticlePlugin:ro
     networks:
       - atom-host
 
@@ -120,6 +124,10 @@ services:
       NODE_ENV: development
     volumes:
       - atom-src:/atom/src
+      # Plugin-owned bind mount: matches the atom service mount so the worker
+      # sees the same plugin scaffold at the same path.
+      # Lane: [1.1.0][01-native-shell-contract]
+      - ../../atom/plugins/sfArticlePlugin:/atom/src/plugins/sfArticlePlugin:ro
     networks:
       - atom-host
 

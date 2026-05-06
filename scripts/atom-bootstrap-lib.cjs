@@ -40,7 +40,7 @@ const DEFAULT_STEPS = [
     id: 'plugin-enablement',
     description: 'Enable AtoM plugin required for hosted integration',
     envKey: 'ATOM_BOOTSTRAP_PLUGIN_HOOK',
-    defaultHook: '',
+    defaultHook: 'php symfony plugins:enable sfArticlePlugin',
   },
   {
     id: 'baseline-initialization',
