@@ -90,6 +90,9 @@ services:
       NODE_ENV: development
     volumes:
       - atom-src:/atom/src
+      # Plugin-owned wiring: mount sfHmtArticlePlugin into the AtoM plugins directory.
+      # No AtoM core patching required — plugin is loaded via `php symfony plugin:enable`.
+      - ../../atom-plugins/sfHmtArticlePlugin:/atom/src/plugins/sfHmtArticlePlugin
     networks:
       - atom-host
 

@@ -1,0 +1,16 @@
+# Route baseline for sfHmtArticlePlugin.
+# Downstream lanes (02-add-menu-route, 03-native-form-surface) build on top of these routes.
+
+sfHmtArticleIndex:
+  url:   /hmt-article
+  param: { module: hmtArticle, action: index }
+
+sfHmtArticleCreate:
+  url:   /hmt-article/new
+  param: { module: hmtArticle, action: create }
+
+sfHmtArticleEdit:
+  url:   /hmt-article/:id/edit
+  param: { module: hmtArticle, action: edit }
+  requirements:
+    id: \d+

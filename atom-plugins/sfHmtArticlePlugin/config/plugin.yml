@@ -1,0 +1,4 @@
+all:
+  sfHmtArticlePlugin:
+    enabled:    true
+    is_internal: false
