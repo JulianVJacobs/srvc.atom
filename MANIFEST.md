@@ -1,7 +1,7 @@
 # Phase 1.0.0 Coordination Manifest
 
 > **Conductor lane:** `[1.0.0][00-conductor]`
-> **Status:** ACTIVE — awaiting worker lanes
+> **Status:** ACTIVE — all worker PRs open, awaiting review and merge sequencing
 > **Last updated:** 2026-05-06
 
 ---
@@ -40,18 +40,27 @@
 
 ---
 
+## Branch topology note
+
+> **⚠ Topology:** All worker PRs currently target `copilot/phase-100` (the conductor branch) rather than `phase/1.0.0`. This happened because `phase/1.0.0` was not pushed to `origin` before the worker agents opened their PRs. The integration branch `phase/1.0.0` must be pushed to `origin` and all worker PR bases retargeted before the merge sequence begins.
+
+---
+
 ## Lane registry
 
 ### `[1.0.0][01-native-shell-contract]` — Plugin shell and persistence/linking contract
 
 | Field | Value |
 |---|---|
-| Status | `PENDING` |
-| PR | — |
-| Branch | — |
+| Status | `OPEN — draft, pending review` |
+| PR | [#2](https://github.com/JulianVJacobs/srvc.atom/pull/2) |
+| Branch | `copilot/01-native-shell-contract-scaffold-plugin` |
+| Current base | `copilot/phase-100` (retarget to `phase/1.0.0` required) |
 | Owned surface | Plugin scaffold wiring, plugin configuration baseline, contract artifacts, persistence boundary definition |
 | Merge prerequisite | None — merges first |
-| Blocker | None |
+| Blocker | Retarget base to `phase/1.0.0` |
+| Files changed | `atom-plugins/sfHmtArticlePlugin/` (scaffold), `docs/persistence-linking-contract.md`, `infrastructure/atom-stack/docker-compose.yml`, `.env.example` |
+| Scope check | ✅ All changes in plugin-owned or supporting stack surfaces; no AtoM core patching |
 
 Verification required before merge:
 - [ ] PHP AtoM plugin scaffold present and mountable under `/atom/src/plugins`
@@ -65,12 +74,16 @@ Verification required before merge:
 
 | Field | Value |
 |---|---|
-| Status | `PENDING` |
-| PR | — |
-| Branch | — |
+| Status | `OPEN — draft, pending review` |
+| PR | [#3](https://github.com/JulianVJacobs/srvc.atom/pull/3) |
+| Branch | `copilot/lane-100-02-add-menu-route` |
+| Current base | `copilot/phase-100` (retarget to `phase/1.0.0` required) |
 | Owned surface | Menu extension wiring and plugin route registration for `Article` entry point |
 | Merge prerequisite | Lane 01 merged and green |
-| Blocker | Blocked on lane 01 |
+| Blocker | Retarget base to `phase/1.0.0`; lane 01 not yet merged |
+| Files changed | `plugin/auth/checkPermission.ts`, `plugin/bootstrap.ts`, `plugin/contracts/http.ts`, `plugin/contracts/plugin-api-contract.ts`, `plugin/controllers/resource-controllers.ts`, `plugin/plugin.yml`, `plugin/routes/register-plugin-routes.ts`, `plugin/runtime/hosted-atom-runtime.ts`, `plugin/scaffold/plugin-scaffold.ts`, `plugin/tests/add-menu-route.test.ts` |
+| Scope check | ✅ All changes in plugin-owned surface; no AtoM core patching |
+| Conflict note | ⚠ Overlaps with lane 03 on `checkPermission.ts`, `plugin-api-contract.ts`, `resource-controllers.ts`, `register-plugin-routes.ts`, `hosted-atom-runtime.ts` — merge sequencing must be enforced |
 
 Verification required before merge:
 - [ ] `Article` entry visible in the AtoM `Add` menu
@@ -84,12 +97,16 @@ Verification required before merge:
 
 | Field | Value |
 |---|---|
-| Status | `PENDING` |
-| PR | — |
-| Branch | — |
+| Status | `OPEN — draft, pending review` |
+| PR | [#4](https://github.com/JulianVJacobs/srvc.atom/pull/4) |
+| Branch | `copilot/100-03-native-form-surface` |
+| Current base | `copilot/phase-100` (retarget to `phase/1.0.0` required) |
 | Owned surface | Module actions, form class, templates/partials, validation and submission behavior |
 | Merge prerequisite | Lane 01 merged and green; lane 02 route baseline stable |
-| Blocker | Blocked on lane 01 |
+| Blocker | Retarget base to `phase/1.0.0`; lanes 01 and 02 not yet merged |
+| Files changed | `plugin/auth/checkPermission.ts`, `plugin/contracts/plugin-api-contract.ts`, `plugin/controllers/resource-controllers.ts`, `plugin/form/article-form.ts`, `plugin/index.ts`, `plugin/routes/register-plugin-routes.ts`, `plugin/runtime/hosted-atom-runtime.ts`, `plugin/tests/article-form.test.ts`, `plugin/tests/plugin-api-contract.integration.test.ts` |
+| Scope check | ✅ All changes in plugin-owned surface; no AtoM core patching |
+| Conflict note | ⚠ Overlaps with lane 02 on multiple plugin files — must merge after lane 02 and resolve conflicts on `phase/1.0.0` |
 
 Verification required before merge:
 - [ ] Article create/edit form renders in AtoM visual language
@@ -104,12 +121,15 @@ Verification required before merge:
 
 | Field | Value |
 |---|---|
-| Status | `PENDING` |
-| PR | — |
-| Branch | — |
+| Status | `OPEN — draft, pending review` |
+| PR | [#5](https://github.com/JulianVJacobs/srvc.atom/pull/5) |
+| Branch | `copilot/100-04-verification-decision` |
+| Current base | `copilot/phase-100` (retarget to `phase/1.0.0` required) |
 | Owned surface | Verification scripts/checklist, parity evidence, fallback coexistence validation, decision summary |
 | Merge prerequisite | Lanes 02 and 03 merged and green |
-| Blocker | Blocked on lanes 02 and 03 |
+| Blocker | Retarget base to `phase/1.0.0`; lanes 01–03 not yet merged |
+| Files changed | `docs/verification-checklist-1.0.0.md`, `docs/decision-note-1.0.0.md`, `plugin/tests/verification-e2e.test.ts`, `PLAN.md` |
+| Scope check | ✅ All changes in verification/decision surface; no AtoM core patching |
 
 Verification required before merge:
 - [ ] Native article form meets AtoM UX expectations (documented evidence)
@@ -143,6 +163,17 @@ phase/1.0.0               ──►  origin/main   (after 04 green, manifest rem
 
 ---
 
+## Next required actions (conductor)
+
+1. **Push `phase/1.0.0` to `origin`** — worker PR bases must be retargeted to `phase/1.0.0` once it is available on the remote.
+2. **Retarget worker PR bases** — update PRs #2, #3, #4, #5 from `copilot/phase-100` to `phase/1.0.0`.
+3. **Review lane 01 (PR #2)** — no merge dependencies; first in sequence.
+4. **Review lanes 02 and 03 (PRs #3, #4)** — after lane 01 is green; merge lane 02 first, then lane 03 (conflict resolution required on shared plugin files).
+5. **Review lane 04 (PR #5)** — after lanes 02 and 03 are green.
+6. **Open final PR** from `phase/1.0.0` to `origin/main` — remove this manifest; carry structured summary in PR body.
+
+---
+
 ## Stop conditions (contract enforcement)
 
 Any of the following halts merging and requires conductor escalation:
@@ -170,4 +201,5 @@ The final PR from `phase/1.0.0` to `origin/main` will carry:
 
 | Date | Action |
 |---|---|
-| 2026-05-06 | Conductor lane opened; `phase/1.0.0` phase branch initialized; manifest published |
+| 2026-05-06 | Conductor lane opened; `phase/1.0.0` phase branch initialized locally; manifest published |
+| 2026-05-06 | All four worker PRs opened by worker agents (#2–#5); manifest updated with PR registry, scope checks, and topology note |
