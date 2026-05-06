@@ -1,5 +1,7 @@
 import { PluginScaffold } from './scaffold/plugin-scaffold';
 import { registerPluginRoutes } from './routes/register-plugin-routes';
+import { registerMenuExtensions } from './menu/register-menu-extensions';
+import { checkPermission } from './auth/checkPermission';
 import type { PluginDomainServices } from './contracts/plugin-api-contract';
 
 export interface PluginConfig {
@@ -39,7 +41,35 @@ export function bootstrapPlugin(services: PluginDomainServices): PluginScaffold 
     }),
   });
 
+  plugin.registerRoute({
+    method: 'GET',
+    path: '/articles',
+    handler: async (request) => {
+      if (!(await checkPermission(request.auth, 'articles:read'))) {
+        return {
+          status: 403,
+          body: {
+            success: false,
+            error: { code: 'forbidden', message: 'Permission denied' },
+          },
+        };
+      }
+      return {
+        status: 200,
+        body: {
+          success: true,
+          data: {
+            module: 'article',
+            routePath: '/articles',
+            status: 'route-registered',
+          },
+        },
+      };
+    },
+  });
+
   registerPluginRoutes(plugin, services);
+  registerMenuExtensions(plugin);
 
   return plugin;
 }

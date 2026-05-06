@@ -4,9 +4,11 @@ import type {
   PluginHttpResponse,
   PluginRouteDefinition,
 } from '../contracts/http';
+import type { PluginMenuEntry } from '../contracts/menu';
 
 export class PluginScaffold {
   private readonly routes: PluginRouteDefinition[] = [];
+  private readonly menuExtensions: PluginMenuEntry[] = [];
 
   registerRoute(route: PluginRouteDefinition): void {
     this.routes.push(route);
@@ -14,6 +16,14 @@ export class PluginScaffold {
 
   getRoutes(): PluginRouteDefinition[] {
     return [...this.routes];
+  }
+
+  registerMenuExtension(entry: PluginMenuEntry): void {
+    this.menuExtensions.push(entry);
+  }
+
+  getMenuExtensions(): PluginMenuEntry[] {
+    return [...this.menuExtensions];
   }
 
   async dispatch(
