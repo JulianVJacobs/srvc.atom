@@ -2,22 +2,65 @@
 
 ## Active track
 
-- Version: `1.0.0`
-- Track: AtoM-native plugin first draft
+- Version: `1.1.0`
+- Track: Native-path hardening and migration foundation
 - Ownership: `srvc.atom`
-- Status: completed (all lane work merged; conductor merged to `main`)
+- Status: planning-ready (approved to proceed)
 
 ## Active update (2026-05-06)
 
 - Completed baseline:
-  - All worker lanes (01-04) merged into conductor integration path.
-  - Conductor integration merged to `main`.
-  - Fleet PR/issues for phase `1.0.0` are closed.
-  - Phase manifest lifecycle complete; manifest removed from active coordination.
+  - Phase `1.0.0` fully completed and merged to `main`.
+  - Native article plugin first draft established with closed PR/issues and removed phase manifest.
+  - Client direction confirmed: continue on native AtoM plugin path.
 - Remaining scope in this phase:
-  - None.
+  - Launch and complete phase `1.1.0` hardening/migration-foundation work.
 - Next slice:
-  - Open the next service-owned semver line for post-draft continuation (native-path hardening and migration planning).
+  - Execute phase `1.1.0` lanes in dependency order and cut final integration PR to `origin/main`.
+
+## Phase 1.1.0 contract (launch-ready)
+
+- Phase name: Native article plugin hardening + migration foundation
+- Planned version: `1.1.0`
+- Allowed change class: minor (additive hardening and migration preparation)
+- Merge policy: eager-after-green into `phase/1.1.0`, then one final PR to `origin/main`
+- Phase branch: `phase/1.1.0`
+- Final merge target: `origin/main`
+- Semver escalation rule:
+  - Escalate before implementation if changes require AtoM core patching, breaking data model changes, or hosted fallback removal in this line.
+
+### 1.1.0 lane decomposition
+
+- `[1.1.0][00-conductor]` Integrate phase `1.1.0` hardening fleet
+  - Owned surface: phase governance, manifest lifecycle, merge sequencing, final PR
+- `[1.1.0][01-live-plugin-bootstrap]` Ensure live AtoM container plugin boot + enable path
+  - Owned surface: plugin deployment/enable wiring, stack/runtime boot checks, bootstrap hook correctness
+- `[1.1.0][02-php-template-bridge]` Wire native PHP module templates to article form flow
+  - Owned surface: plugin module PHP actions/templates/partials and route-to-template rendering behavior
+- `[1.1.0][03-persistence-migration]` Add durable plugin-owned article persistence and link validation
+  - Owned surface: plugin persistence schema/migration scripts, repository/service writes, linking enforcement
+- `[1.1.0][04-verification-cutover-plan]` Validate hardening results and publish cutover recommendation
+  - Owned surface: verification scripts/checklists, migration evidence, cutover recommendation packet
+
+### 1.1.0 dependencies and merge order
+
+- Dependencies:
+  - Lane 02 depends on lane 01 (live plugin boot and route baseline).
+  - Lane 03 depends on lane 01 and can run parallel with lane 02 once boot path is stable.
+  - Lane 04 depends on lanes 02 and 03.
+- Merge order:
+  - Merge 01 first.
+  - Merge 02 and 03 after 01 (order between 02/03 based on conflict surface at review time).
+  - Merge 04 last.
+  - Conductor opens one final PR from `phase/1.1.0` to `origin/main`.
+
+### 1.1.0 acceptance gates
+
+- Plugin loads/enables reliably in live AtoM stack with deterministic bootstrap path.
+- Native PHP article screens render through plugin-owned templates with AtoM-conformant interaction behavior.
+- Article records persist durably (not in-memory only), with link validation behavior matching contract.
+- Hosted fallback remains available during this phase.
+- Cutover recommendation includes risks, rollback path, and explicit go/no-go decision.
 
 ## Intent
 
