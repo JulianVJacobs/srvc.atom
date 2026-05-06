@@ -113,6 +113,30 @@ export interface ParticipantDomainService {
   ): Promise<ParticipantPayload>;
 }
 
+export interface ArticlePayload {
+  id: string;
+  title: string;
+  slug: string | null;
+  body: string | null;
+  publicationDate: string | null;
+  status: 'draft' | 'published';
+  linkedClaimIds: string[];
+}
+
+export interface ArticleDomainService {
+  list(query: ListQuery, context?: PluginUserContext): Promise<ListResult<ArticlePayload>>;
+  create(
+    input: Omit<ArticlePayload, 'id'>,
+    context?: PluginUserContext,
+  ): Promise<ArticlePayload>;
+  getById(id: string, context?: PluginUserContext): Promise<ArticlePayload | null>;
+  update(
+    id: string,
+    input: Partial<Omit<ArticlePayload, 'id'>>,
+    context?: PluginUserContext,
+  ): Promise<ArticlePayload>;
+}
+
 export interface ClaimArchivalLinkDomainService {
   listByClaimId(
     claimId: string,
@@ -132,4 +156,5 @@ export interface PluginDomainServices {
   victims: VictimDomainService;
   perpetrators: PerpetratorDomainService;
   participants: ParticipantDomainService;
+  articles: ArticleDomainService;
 }

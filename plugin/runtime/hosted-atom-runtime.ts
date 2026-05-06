@@ -1,6 +1,7 @@
 import { bootstrapPlugin } from '../bootstrap';
 import type {
   ActorPayload,
+  ArticlePayload,
   ClaimArchivalLinkPayload,
   ClaimRecordPayload,
   EventPayload,
@@ -20,7 +21,8 @@ type RouteResource =
   | 'claims'
   | 'victims'
   | 'perpetrators'
-  | 'participants';
+  | 'participants'
+  | 'articles';
 
 type RuntimeState = {
   actors: ActorPayload[];
@@ -30,6 +32,7 @@ type RuntimeState = {
   perpetrators: PerpetratorPayload[];
   participants: ParticipantPayload[];
   claimArchivalLinks: ClaimArchivalLinkPayload[];
+  articles: ArticlePayload[];
 };
 
 const initialRuntimeState = (): RuntimeState => ({
@@ -40,6 +43,7 @@ const initialRuntimeState = (): RuntimeState => ({
   perpetrators: [],
   participants: [],
   claimArchivalLinks: [],
+  articles: [],
 });
 
 const toSearchText = (value: Record<string, unknown>): string =>
@@ -97,6 +101,7 @@ const createEntityService = <
 const createHostedDomainServices = (): PluginDomainServices => {
   const state = initialRuntimeState();
   let nextLinkId = 1;
+  let nextArticleId = 1;
 
   return {
     actors: createEntityService<'actors', ActorPayload>(state, 'actors', 'actor'),
@@ -127,6 +132,29 @@ const createHostedDomainServices = (): PluginDomainServices => {
         };
         state.claimArchivalLinks.push(created);
         return created;
+      },
+    },
+    articles: {
+      list: async (query, _context?) => listState(state.articles, query),
+      create: async (input, _context?) => {
+        const created: ArticlePayload = {
+          id: `article-${nextArticleId++}`,
+          ...input,
+        };
+        state.articles.push(created);
+        return created;
+      },
+      getById: async (id, _context?) =>
+        state.articles.find((article) => article.id === id) ?? null,
+      update: async (id, input, _context?) => {
+        const index = state.articles.findIndex((article) => article.id === id);
+        if (index === -1) {
+          throw new Error(`Article not found: ${id}`);
+        }
+        const existing = state.articles[index];
+        const updated: ArticlePayload = { ...existing, ...input, id: existing.id };
+        state.articles[index] = updated;
+        return updated;
       },
     },
   };

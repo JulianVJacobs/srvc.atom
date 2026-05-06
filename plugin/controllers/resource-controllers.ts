@@ -8,6 +8,7 @@ import type {
 } from '../contracts/http';
 import type {
   ActorPayload,
+  ArticlePayload,
   ClaimArchivalLinkPayload,
   ClaimRecordPayload,
   EventPayload,
@@ -116,6 +117,17 @@ const missingQueryResponse = (key: string): PluginHttpResponse<PluginApiResponse
     error: {
       code: 'invalid_request',
       message: `Missing required query parameter: ${key}`,
+    },
+  },
+});
+
+const notFoundResponse = (): PluginHttpResponse<PluginApiResponse<unknown>> => ({
+  status: 404,
+  body: {
+    success: false,
+    error: {
+      code: 'not_found',
+      message: 'Article not found',
     },
   },
 });
@@ -288,5 +300,72 @@ export const createResourceControllers = (
         await services.participants.create(parsedBody.value, userContext),
       );
     },
+  },
+});
+
+export interface ArticleModuleControllerSet {
+  list: (
+    request: PluginHttpRequest,
+  ) => Promise<PluginHttpResponse<PluginApiListResponse<ArticlePayload>>>;
+  create: (
+    request: PluginHttpRequest,
+  ) => Promise<PluginHttpResponse<PluginApiResponse<ArticlePayload>>>;
+  getById: (
+    request: PluginHttpRequest,
+  ) => Promise<PluginHttpResponse<PluginApiResponse<ArticlePayload>>>;
+  update: (
+    request: PluginHttpRequest,
+  ) => Promise<PluginHttpResponse<PluginApiResponse<ArticlePayload>>>;
+}
+
+export const createArticleControllers = (
+  services: PluginDomainServices,
+  permissionCheck: PermissionCheck = checkPermission,
+): ArticleModuleControllerSet => ({
+  list: async (request) => {
+    const userContext = bindUserContext(request.auth);
+    if (!(await permissionCheck(request.auth, 'articles:read'))) {
+      return unauthorizedResponse();
+    }
+    const result = await services.articles.list(toListQuery(request), userContext);
+    return listResponse(result);
+  },
+  create: async (request) => {
+    const userContext = bindUserContext(request.auth);
+    if (!(await permissionCheck(request.auth, 'articles:create'))) {
+      return unauthorizedResponse();
+    }
+    const parsedBody = parseBody<Omit<ArticlePayload, 'id'>>(request);
+    if (!parsedBody.ok) return badRequestResponse();
+    return createResponse(await services.articles.create(parsedBody.value, userContext));
+  },
+  getById: async (request) => {
+    const userContext = bindUserContext(request.auth);
+    if (!(await permissionCheck(request.auth, 'articles:read'))) {
+      return unauthorizedResponse();
+    }
+    const idParam = parseRequiredQuery(request, 'id');
+    if (!idParam.ok) {
+      return missingQueryResponse('id');
+    }
+    const article = await services.articles.getById(idParam.value, userContext);
+    if (!article) {
+      return notFoundResponse();
+    }
+    return { status: 200, body: { success: true, data: article } };
+  },
+  update: async (request) => {
+    const userContext = bindUserContext(request.auth);
+    if (!(await permissionCheck(request.auth, 'articles:update'))) {
+      return unauthorizedResponse();
+    }
+    const parsedBody = parseBody<{ id: string } & Partial<Omit<ArticlePayload, 'id'>>>(request);
+    if (!parsedBody.ok) return badRequestResponse();
+    const { id, ...fields } = parsedBody.value;
+    if (!id?.trim()) {
+      return badRequestResponse();
+    }
+    const updated = await services.articles.update(id, fields, userContext);
+    return { status: 200, body: { success: true, data: updated } };
   },
 });

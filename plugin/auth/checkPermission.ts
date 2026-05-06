@@ -20,6 +20,9 @@ const PLUGIN_PERMISSION_MAP: Record<string, string> = {
   'perpetrators:create': 'create',
   'participants:read': 'read',
   'participants:create': 'create',
+  'articles:read': 'read',
+  'articles:create': 'create',
+  'articles:update': 'update',
 };
 
 const hasRoleOverride = (authContext: PluginAuthContext): boolean =>

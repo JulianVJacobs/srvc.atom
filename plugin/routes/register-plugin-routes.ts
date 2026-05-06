@@ -1,4 +1,4 @@
-import { createResourceControllers } from '../controllers/resource-controllers';
+import { createArticleControllers, createResourceControllers } from '../controllers/resource-controllers';
 import type { PluginDomainServices } from '../contracts/plugin-api-contract';
 import type { PluginScaffold } from '../scaffold/plugin-scaffold';
 
@@ -7,6 +7,7 @@ export const registerPluginRoutes = (
   services: PluginDomainServices,
 ): void => {
   const controllers = createResourceControllers(services);
+  const articleControllers = createArticleControllers(services);
 
   plugin.registerRoute({
     method: 'GET',
@@ -82,5 +83,26 @@ export const registerPluginRoutes = (
     method: 'POST',
     path: '/participants',
     handler: controllers.participants.create,
+  });
+
+  plugin.registerRoute({
+    method: 'GET',
+    path: '/articles',
+    handler: articleControllers.list,
+  });
+  plugin.registerRoute({
+    method: 'POST',
+    path: '/articles',
+    handler: articleControllers.create,
+  });
+  plugin.registerRoute({
+    method: 'GET',
+    path: '/articles/edit',
+    handler: articleControllers.getById,
+  });
+  plugin.registerRoute({
+    method: 'POST',
+    path: '/articles/edit',
+    handler: articleControllers.update,
   });
 };

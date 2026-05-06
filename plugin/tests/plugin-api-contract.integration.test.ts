@@ -2,6 +2,7 @@ import { registerPluginRoutes } from '../routes/register-plugin-routes';
 import { PluginScaffold } from '../scaffold/plugin-scaffold';
 import type {
   ActorPayload,
+  ArticlePayload,
   ClaimArchivalLinkPayload,
   ClaimRecordPayload,
   EventPayload,
@@ -61,9 +62,19 @@ describe('plugin API contract routes', () => {
     linkedRecordType: 'authority_record',
     linkedRecordId: 'QUBIT-AR-1',
   };
+  const articleSeed: ArticlePayload = {
+    id: 'article-1',
+    title: 'Test Article',
+    slug: 'test-article',
+    body: 'Article body text.',
+    publicationDate: '2026-01-10',
+    status: 'published',
+    linkedClaimIds: ['claim-1'],
+  };
 
   const buildTestServices = (): PluginDomainServices => {
     const linkageStore: ClaimArchivalLinkPayload[] = [claimLinkSeed];
+    const articleStore: ArticlePayload[] = [articleSeed];
 
     return {
       actors: createListService(actorSeed, (input) => ({ id: 'actor-2', ...input })),
@@ -99,6 +110,23 @@ describe('plugin API contract routes', () => {
         id: 'participant-2',
         ...input,
       })),
+      articles: {
+        list: jest.fn(async () => ({ items: [articleSeed], total: 1 })),
+        create: jest.fn(async (input: Omit<ArticlePayload, 'id'>) => ({
+          id: 'article-2',
+          ...input,
+        })),
+        getById: jest.fn(async (id: string) =>
+          articleStore.find((a) => a.id === id) ?? null,
+        ),
+        update: jest.fn(
+          async (id: string, input: Partial<Omit<ArticlePayload, 'id'>>) => {
+            const existing = articleStore.find((a) => a.id === id);
+            if (!existing) throw new Error(`Article not found: ${id}`);
+            return { ...existing, ...input, id: existing.id };
+          },
+        ),
+      },
     };
   };
 
@@ -245,5 +273,113 @@ describe('plugin API contract routes', () => {
         total: 2,
       },
     });
+  });
+
+  it('GET /articles returns article list contract shape', async () => {
+    const response = await scaffold.dispatch('GET', '/articles', {
+      query: { limit: '10', offset: '0' },
+      auth: { userId: 'user-1', permissions: ['articles:read'] },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        items: [articleSeed],
+        total: 1,
+      },
+    });
+  });
+
+  it('POST /articles creates an article and returns 201 with entity shape', async () => {
+    const input = {
+      title: 'New Article',
+      slug: 'new-article',
+      body: 'Content here.',
+      publicationDate: '2026-03-01',
+      status: 'draft' as const,
+      linkedClaimIds: [],
+    };
+
+    const response = await scaffold.dispatch('POST', '/articles', {
+      body: input,
+      auth: { userId: 'user-1', permissions: ['articles:create'] },
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toMatchObject({
+      success: true,
+      data: {
+        id: expect.any(String),
+        ...input,
+      },
+    });
+  });
+
+  it('GET /articles/edit retrieves a single article by id for editing', async () => {
+    const response = await scaffold.dispatch('GET', '/articles/edit', {
+      query: { id: 'article-1' },
+      auth: { userId: 'user-1', permissions: ['articles:read'] },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      data: articleSeed,
+    });
+  });
+
+  it('GET /articles/edit returns 404 when article is not found', async () => {
+    const response = await scaffold.dispatch('GET', '/articles/edit', {
+      query: { id: 'does-not-exist' },
+      auth: { userId: 'user-1', permissions: ['articles:read'] },
+    });
+
+    expect(response.status).toBe(404);
+  });
+
+  it('GET /articles/edit returns 400 when id query param is missing', async () => {
+    const response = await scaffold.dispatch('GET', '/articles/edit', {
+      query: {},
+      auth: { userId: 'user-1', permissions: ['articles:read'] },
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('POST /articles/edit updates an article and returns 200 with updated shape', async () => {
+    const response = await scaffold.dispatch('POST', '/articles/edit', {
+      body: { id: 'article-1', title: 'Updated Title', status: 'published' },
+      auth: { userId: 'user-1', permissions: ['articles:update'] },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      data: {
+        id: 'article-1',
+        title: 'Updated Title',
+        status: 'published',
+      },
+    });
+  });
+
+  it('rejects article routes when permission is not granted', async () => {
+    const listResponse = await scaffold.dispatch('GET', '/articles', {
+      auth: { userId: 'user-1' },
+    });
+    expect(listResponse.status).toBe(403);
+
+    const editGetResponse = await scaffold.dispatch('GET', '/articles/edit', {
+      query: { id: 'article-1' },
+      auth: { userId: 'user-1' },
+    });
+    expect(editGetResponse.status).toBe(403);
+
+    const editPostResponse = await scaffold.dispatch('POST', '/articles/edit', {
+      body: { id: 'article-1', title: 'Attempt' },
+      auth: { userId: 'user-1' },
+    });
+    expect(editPostResponse.status).toBe(403);
   });
 });
