@@ -8,6 +8,7 @@ import type {
 } from '../contracts/http';
 import type {
   ActorPayload,
+  ArticlePayload,
   ClaimArchivalLinkPayload,
   ClaimRecordPayload,
   EventPayload,
@@ -29,6 +30,7 @@ type PayloadByResource = {
   victims: VictimPayload;
   perpetrators: PerpetratorPayload;
   participants: ParticipantPayload;
+  articles: ArticlePayload;
 };
 
 type CreateInputByResource = {
@@ -287,6 +289,25 @@ export const createResourceControllers = (
       return createResponse(
         await services.participants.create(parsedBody.value, userContext),
       );
+    },
+  },
+  articles: {
+    list: async (request) => {
+      const userContext = bindUserContext(request.auth);
+      if (!(await permissionCheck(request.auth, 'articles:read'))) {
+        return unauthorizedResponse();
+      }
+      const result = await services.articles.list(toListQuery(request), userContext);
+      return listResponse(result);
+    },
+    create: async (request) => {
+      const userContext = bindUserContext(request.auth);
+      if (!(await permissionCheck(request.auth, 'articles:create'))) {
+        return unauthorizedResponse();
+      }
+      const parsedBody = parseBody<CreateInputByResource['articles']>(request);
+      if (!parsedBody.ok) return badRequestResponse();
+      return createResponse(await services.articles.create(parsedBody.value, userContext));
     },
   },
 });

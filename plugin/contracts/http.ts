@@ -62,3 +62,10 @@ export interface PluginRouteDefinition {
     request: PluginHttpRequest,
   ) => Promise<PluginHttpResponse<unknown>> | PluginHttpResponse<unknown>;
 }
+
+export interface PluginMenuEntry {
+  menu: string;
+  label: string;
+  route: string;
+  accessPermission?: string;
+}

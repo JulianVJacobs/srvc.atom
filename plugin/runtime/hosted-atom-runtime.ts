@@ -1,6 +1,7 @@
 import { bootstrapPlugin } from '../bootstrap';
 import type {
   ActorPayload,
+  ArticlePayload,
   ClaimArchivalLinkPayload,
   ClaimRecordPayload,
   EventPayload,
@@ -20,7 +21,8 @@ type RouteResource =
   | 'claims'
   | 'victims'
   | 'perpetrators'
-  | 'participants';
+  | 'participants'
+  | 'articles';
 
 type RuntimeState = {
   actors: ActorPayload[];
@@ -30,6 +32,7 @@ type RuntimeState = {
   perpetrators: PerpetratorPayload[];
   participants: ParticipantPayload[];
   claimArchivalLinks: ClaimArchivalLinkPayload[];
+  articles: ArticlePayload[];
 };
 
 const initialRuntimeState = (): RuntimeState => ({
@@ -40,6 +43,7 @@ const initialRuntimeState = (): RuntimeState => ({
   perpetrators: [],
   participants: [],
   claimArchivalLinks: [],
+  articles: [],
 });
 
 const toSearchText = (value: Record<string, unknown>): string =>
@@ -112,6 +116,11 @@ const createHostedDomainServices = (): PluginDomainServices => {
       state,
       'participants',
       'participant',
+    ),
+    articles: createEntityService<'articles', ArticlePayload>(
+      state,
+      'articles',
+      'article',
     ),
     claimArchivalLinks: {
       listByClaimId: async (claimId) => {

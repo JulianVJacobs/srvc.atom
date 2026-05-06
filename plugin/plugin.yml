@@ -10,3 +10,9 @@ routes:
 health:
   path: /
   expectedStatus: 200
+menu:
+  extensions:
+    - menu: add
+      label: Article
+      route: /plugins/homicide-tracker/articles/new
+      accessPermission: articles:create

@@ -47,6 +47,15 @@ export interface ParticipantPayload {
   role: string;
 }
 
+export interface ArticlePayload {
+  id: string;
+  title: string;
+  slug: string;
+  sourceUrl: string | null;
+  publicationDate: string | null;
+  outlet: string | null;
+}
+
 export interface ListQuery {
   search?: string;
   limit?: number;
@@ -113,6 +122,14 @@ export interface ParticipantDomainService {
   ): Promise<ParticipantPayload>;
 }
 
+export interface ArticleDomainService {
+  list(query: ListQuery, context?: PluginUserContext): Promise<ListResult<ArticlePayload>>;
+  create(
+    input: Omit<ArticlePayload, 'id'>,
+    context?: PluginUserContext,
+  ): Promise<ArticlePayload>;
+}
+
 export interface ClaimArchivalLinkDomainService {
   listByClaimId(
     claimId: string,
@@ -132,4 +149,5 @@ export interface PluginDomainServices {
   victims: VictimDomainService;
   perpetrators: PerpetratorDomainService;
   participants: ParticipantDomainService;
+  articles: ArticleDomainService;
 }

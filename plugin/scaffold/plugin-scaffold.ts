@@ -2,11 +2,13 @@ import type {
   PluginHttpMethod,
   PluginHttpRequest,
   PluginHttpResponse,
+  PluginMenuEntry,
   PluginRouteDefinition,
 } from '../contracts/http';
 
 export class PluginScaffold {
   private readonly routes: PluginRouteDefinition[] = [];
+  private readonly menuEntries: PluginMenuEntry[] = [];
 
   registerRoute(route: PluginRouteDefinition): void {
     this.routes.push(route);
@@ -14,6 +16,14 @@ export class PluginScaffold {
 
   getRoutes(): PluginRouteDefinition[] {
     return [...this.routes];
+  }
+
+  registerMenuEntry(entry: PluginMenuEntry): void {
+    this.menuEntries.push(entry);
+  }
+
+  getMenuEntries(): PluginMenuEntry[] {
+    return [...this.menuEntries];
   }
 
   async dispatch(

@@ -83,4 +83,37 @@ export const registerPluginRoutes = (
     path: '/participants',
     handler: controllers.participants.create,
   });
+
+  plugin.registerRoute({
+    method: 'GET',
+    path: '/articles',
+    handler: controllers.articles.list,
+  });
+  plugin.registerRoute({
+    method: 'POST',
+    path: '/articles',
+    handler: controllers.articles.create,
+  });
+  plugin.registerRoute({
+    method: 'GET',
+    path: '/articles/new',
+    handler: (request) => {
+      if (!request.auth?.userId) {
+        return {
+          status: 403,
+          body: {
+            success: false,
+            error: { code: 'forbidden', message: 'Permission denied' },
+          },
+        };
+      }
+      return {
+        status: 200,
+        body: {
+          success: true,
+          data: { route: 'article:new', ready: false },
+        },
+      };
+    },
+  });
 };

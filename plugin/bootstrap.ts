@@ -7,6 +7,7 @@ export interface PluginConfig {
   version: string;
   description: string;
   pluginId: string;
+  routePrefix: string;
 }
 
 export const PLUGIN_CONFIG: PluginConfig = {
@@ -16,6 +17,7 @@ export const PLUGIN_CONFIG: PluginConfig = {
     process.env.npm_package_description ??
     'An application to track (homicide) media.',
   pluginId: 'access-homicide-tracker',
+  routePrefix: '/plugins/homicide-tracker',
 };
 
 export function bootstrapPlugin(services: PluginDomainServices): PluginScaffold {
@@ -40,6 +42,13 @@ export function bootstrapPlugin(services: PluginDomainServices): PluginScaffold 
   });
 
   registerPluginRoutes(plugin, services);
+
+  plugin.registerMenuEntry({
+    menu: 'add',
+    label: 'Article',
+    route: `${PLUGIN_CONFIG.routePrefix}/articles/new`,
+    accessPermission: 'articles:create',
+  });
 
   return plugin;
 }
