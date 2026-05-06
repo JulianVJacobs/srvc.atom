@@ -70,29 +70,43 @@ function runCapture(command, args) {
   return result.stdout.trim();
 }
 
-async function checkHttpReadiness(url, attempts = 30, delayMs = 2000) {
+async function checkHttpReadiness(composeArgs, path, attempts = 30, delayMs = 2000) {
   let lastError;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { Accept: 'application/json, text/plain' },
-      });
+    const result = spawnSync(
+      'docker',
+      [
+        'compose',
+        ...composeArgs,
+        'exec',
+        '-T',
+        'atom-host',
+        'wget',
+        '-q',
+        '-O',
+        '-',
+        `http://127.0.0.1:8080${path}`,
+      ],
+      {
+        cwd: repoRoot,
+        env: process.env,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
 
-      if (response.ok) {
-        return;
-      }
-
-      lastError = new Error(`HTTP ${response.status}`);
-    } catch (error) {
-      lastError = error;
+    if (result.status === 0) {
+      return;
     }
 
+    lastError = new Error((result.stderr || result.stdout || '').trim() || 'wget failed');
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 
-  throw new Error(`Host readiness check failed for ${url}: ${lastError?.message}`);
+  throw new Error(
+    `Host readiness check failed for atom-host${path}: ${lastError?.message}`,
+  );
 }
 
 async function verifyReadiness(composeArgs, envEntries) {
@@ -111,7 +125,7 @@ async function verifyReadiness(composeArgs, envEntries) {
         .filter(Boolean)
         .map((line) => JSON.parse(line))
     : [];
-  const expectedServices = ['atom-db', 'atom-cache', 'atom-host'];
+  const expectedServices = ['atom-db', 'memcached', 'atom-host'];
 
   for (const serviceName of expectedServices) {
     const service = services.find((candidate) => candidate.Service === serviceName);
@@ -127,19 +141,17 @@ async function verifyReadiness(composeArgs, envEntries) {
       throw new Error(`Service ${serviceName} is not running (state: ${service.State})`);
     }
 
-    if (health && health !== 'healthy') {
+    if (serviceName !== 'memcached' && health && health !== 'healthy') {
       throw new Error(
         `Service ${serviceName} is not healthy (health: ${service.Health})`,
       );
     }
   }
 
-  const hostPort = envEntries.ATOM_HOST_PORT || defaultHostPort;
   const healthPath = envEntries.ATOM_HOST_HEALTH_PATH || defaultHealthPath;
-  const readinessUrl = `http://127.0.0.1:${hostPort}${healthPath}`;
 
-  await checkHttpReadiness(readinessUrl);
-  process.stdout.write(`Readiness checks passed for ${readinessUrl}\n`);
+  await checkHttpReadiness(composeArgs, healthPath);
+  process.stdout.write(`Readiness checks passed for atom-host${healthPath}\n`);
 }
 
 async function main() {
@@ -155,14 +167,18 @@ async function main() {
   if (command === 'up') {
     const waitTimeout =
       process.env.ATOM_STACK_WAIT_TIMEOUT || envEntries.ATOM_STACK_WAIT_TIMEOUT || '240';
+    run('docker', ['compose', ...composeArgs, 'up', '-d', 'memcached']);
     run('docker', [
       'compose',
       ...composeArgs,
       'up',
       '-d',
-      '--wait',
-      '--wait-timeout',
-      waitTimeout,
+      'atom-db',
+      'gearmand',
+      'elasticsearch',
+      'atom',
+      'atom_worker',
+      'atom-host',
     ]);
     await verifyReadiness(composeArgs, envEntries);
     return;

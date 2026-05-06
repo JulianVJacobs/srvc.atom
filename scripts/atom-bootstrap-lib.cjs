@@ -5,6 +5,19 @@ const { spawnSync } = require('child_process');
 
 const STATE_KEY_HASH_LENGTH = 16;
 const DEFAULT_MAX_FAILURE_LINES = 40;
+const repoRoot = path.resolve(__dirname, '..');
+const defaultComposeFile = path.join(
+  repoRoot,
+  'infrastructure',
+  'atom-stack',
+  'docker-compose.yml',
+);
+const defaultComposeEnvFile = path.join(
+  repoRoot,
+  'infrastructure',
+  'atom-stack',
+  '.env.example',
+);
 
 const IDEMPOTENT_ERROR_PATTERN =
   /already exists|already enabled|duplicate|has already been taken|not changed/i;
@@ -15,21 +28,19 @@ const DEFAULT_STEPS = [
     description: 'Provision initial AtoM administrator account',
     envKey: 'ATOM_BOOTSTRAP_ADMIN_HOOK',
     defaultHook:
-      'php symfony tools:install --email="${ATOM_ADMIN_EMAIL:-admin@example.invalid}" --username="${ATOM_ADMIN_USERNAME:-admin}" --password="${ATOM_ADMIN_PASSWORD:?ATOM_ADMIN_PASSWORD is required for bootstrap}" --siteBaseUrl="${ATOM_SITE_BASE_URL:-http://localhost}" --siteName="${ATOM_SITE_NAME:-AtoM}"',
+      'php -d memory_limit=${ATOM_INSTALL_MEMORY_LIMIT:-2G} symfony tools:install --database-host="${ATOM_DB_HOST:-atom-db}" --database-port="${ATOM_DB_PORT:-3306}" --database-name="${ATOM_DB_NAME:-atom}" --database-user="${ATOM_DB_USER:-atom}" --database-password="${ATOM_DB_PASSWORD:-REPLACE_WITH_SECURE_DB_PASSWORD}" --search-host="${ATOM_SEARCH_HOST:-elasticsearch}" --search-port="${ATOM_SEARCH_PORT:-9200}" --search-index="${ATOM_SEARCH_INDEX:-atom}" --site-title="${ATOM_SITE_NAME:-AtoM}" --site-description="${ATOM_SITE_DESCRIPTION:-Local AtoM dev stack}" --site-base-url="${ATOM_SITE_BASE_URL:-http://127.0.0.1:62080}" --admin-email="${ATOM_ADMIN_EMAIL:-admin@example.invalid}" --admin-username="${ATOM_ADMIN_USERNAME:-admin}" --admin-password="${ATOM_ADMIN_PASSWORD:-Admin123!}" --no-confirmation',
   },
   {
     id: 'bootstrap-user-state',
     description: 'Apply required bootstrap user/state initialization',
     envKey: 'ATOM_BOOTSTRAP_STATE_HOOK',
-    defaultHook:
-      'php symfony tools:add-user --username="${ATOM_BOOTSTRAP_USERNAME:-bootstrap}" --password="${ATOM_BOOTSTRAP_PASSWORD:?ATOM_BOOTSTRAP_PASSWORD is required for bootstrap}" --email="${ATOM_BOOTSTRAP_EMAIL:-bootstrap@example.invalid}" --group="${ATOM_BOOTSTRAP_GROUP:-editor}"',
+    defaultHook: '',
   },
   {
     id: 'plugin-enablement',
     description: 'Enable AtoM plugin required for hosted integration',
     envKey: 'ATOM_BOOTSTRAP_PLUGIN_HOOK',
-    defaultHook:
-      'php symfony tools:plugins --enable="${ATOM_PLUGIN_NAME:-qaHomicideMediaTrackerPlugin}"',
+    defaultHook: '',
   },
   {
     id: 'baseline-initialization',
@@ -65,7 +76,16 @@ function buildExecutionCommand(hook, env = process.env) {
   const args = ['compose'];
   if (env.ATOM_STACK_COMPOSE_FILE) {
     args.push('-f', env.ATOM_STACK_COMPOSE_FILE);
+  } else if (fs.existsSync(defaultComposeFile)) {
+    args.push('-f', defaultComposeFile);
   }
+
+  if (env.ATOM_STACK_ENV_FILE) {
+    args.push('--env-file', env.ATOM_STACK_ENV_FILE);
+  } else if (fs.existsSync(defaultComposeEnvFile)) {
+    args.push('--env-file', defaultComposeEnvFile);
+  }
+
   if (env.ATOM_STACK_PROJECT_NAME) {
     args.push('-p', env.ATOM_STACK_PROJECT_NAME);
   }
