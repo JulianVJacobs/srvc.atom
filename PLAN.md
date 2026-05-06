@@ -5,7 +5,19 @@
 - Version: `1.0.0`
 - Track: AtoM-native plugin first draft
 - Ownership: `srvc.atom`
-- Status: launch-ready (client-approved direction for first draft)
+- Status: completed (all lane work merged; conductor merged to `main`)
+
+## Active update (2026-05-06)
+
+- Completed baseline:
+  - All worker lanes (01-04) merged into conductor integration path.
+  - Conductor integration merged to `main`.
+  - Fleet PR/issues for phase `1.0.0` are closed.
+  - Phase manifest lifecycle complete; manifest removed from active coordination.
+- Remaining scope in this phase:
+  - None.
+- Next slice:
+  - Open the next service-owned semver line for post-draft continuation (native-path hardening and migration planning).
 
 ## Intent
 
@@ -114,10 +126,9 @@
 
 ## Risks and follow-ups
 
-- Local plugin deployment into the running AtoM container is not yet fully wired and must be solved before feature implementation.
-- The exact persistence boundary for article records is still undecided.
+- Translate 1.0.0 draft outputs into a concrete post-draft migration contract for the next semver line.
 - If the desired article workflow depends heavily on existing accession or information object internals, the migration scope may exceed this initial release contract.
 
 ## Next decision
 
-- Client review of the native article draft determines whether `srvc.atom` continues on a full AtoM-native migration path.
+- Choose and approve the next semver contract for continuation beyond `1.0.0` (recommended: native-path hardening + migration planning slice).
