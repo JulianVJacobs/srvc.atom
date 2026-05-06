@@ -168,7 +168,7 @@ describe('Article menu entry and route binding', () => {
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
         success: true,
-        data: { route: 'article:new' },
+        data: { route: 'article:new', ready: false },
       });
     });
 
