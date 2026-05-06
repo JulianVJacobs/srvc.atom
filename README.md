@@ -15,3 +15,8 @@ Typical commands:
 - `npm run atom.stack.readiness`
 - `npm run atom.bootstrap`
 - `npm run atom.bootstrap.reseed`
+
+Planning:
+
+- `PLAN.md` tracks the AtoM-native plugin roadmap owned by `srvc.atom`, beginning with version `1.0.0` for the first-draft native article plugin.
+- `1.0.0` is now launch-ready with an integrated lane plan where plugin scaffolding and persistence/linking contract definition are combined into lane `[1.0.0][01-native-shell-contract]`.
