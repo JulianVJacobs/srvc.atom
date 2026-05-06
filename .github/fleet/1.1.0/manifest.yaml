@@ -1,0 +1,136 @@
+## Phase 1.1.0 Fleet Coordination Manifest
+## Conductor: [1.1.0][00-conductor]
+## Phase: Native article plugin hardening + migration foundation
+## Branch: phase/1.1.0
+## Final merge target: origin/main
+## Status: in-progress
+## Last updated: 2026-05-06
+
+phase:
+  version: "1.1.0"
+  name: "Native article plugin hardening + migration foundation"
+  branch: "phase/1.1.0"
+  final_merge_target: "origin/main"
+  status: "in-progress"
+  semver_class: "minor"
+  merge_policy: "eager-after-green"
+  conductor: "[1.1.0][00-conductor]"
+
+contract:
+  allowed_change_class: "minor"
+  additive_only: true
+  atom_core_patching: false
+  hosted_fallback_preserved: true
+  escalation_rule: >
+    Escalate before implementation if changes require AtoM core patching,
+    breaking data model changes, or hosted fallback removal in this line.
+
+acceptance_gates:
+  - id: plugin-boot
+    description: "Plugin loads/enables reliably in live AtoM stack with deterministic bootstrap path."
+    status: pending
+  - id: native-templates
+    description: "Native PHP article screens render through plugin-owned templates with AtoM-conformant interaction behavior."
+    status: pending
+  - id: durable-persistence
+    description: "Article records persist durably (not in-memory only), with link validation behavior matching contract."
+    status: pending
+  - id: hosted-fallback
+    description: "Hosted fallback remains available during this phase."
+    status: pending
+  - id: cutover-recommendation
+    description: "Cutover recommendation includes risks, rollback path, and explicit go/no-go decision."
+    status: pending
+
+lanes:
+  - id: "01"
+    name: "[1.1.0][01-live-plugin-bootstrap]"
+    title: "Ensure live AtoM container plugin boot + enable path"
+    branch: "lane/1.1.0/01-live-plugin-bootstrap"
+    owned_surface: "plugin deployment/enable wiring, stack/runtime boot checks, bootstrap hook correctness"
+    status: "pending"
+    pr_number: null
+    pr_url: null
+    blockers: []
+    verification: "pending"
+    merge_order: 1
+    dependencies: []
+    ready_to_merge: false
+
+  - id: "02"
+    name: "[1.1.0][02-php-template-bridge]"
+    title: "Wire native PHP module templates to article form flow"
+    branch: "lane/1.1.0/02-php-template-bridge"
+    owned_surface: "plugin module PHP actions/templates/partials and route-to-template rendering behavior"
+    status: "pending"
+    pr_number: null
+    pr_url: null
+    blockers: []
+    verification: "pending"
+    merge_order: 2
+    dependencies:
+      - "01"
+    ready_to_merge: false
+
+  - id: "03"
+    name: "[1.1.0][03-persistence-migration]"
+    title: "Add durable plugin-owned article persistence and link validation"
+    branch: "lane/1.1.0/03-persistence-migration"
+    owned_surface: "plugin persistence schema/migration scripts, repository/service writes, linking enforcement"
+    status: "pending"
+    pr_number: null
+    pr_url: null
+    blockers: []
+    verification: "pending"
+    merge_order: 3
+    dependencies:
+      - "01"
+    ready_to_merge: false
+
+  - id: "04"
+    name: "[1.1.0][04-verification-cutover-plan]"
+    title: "Validate hardening results and publish cutover recommendation"
+    branch: "lane/1.1.0/04-verification-cutover-plan"
+    owned_surface: "verification scripts/checklists, migration evidence, cutover recommendation packet"
+    status: "pending"
+    pr_number: null
+    pr_url: null
+    blockers: []
+    verification: "pending"
+    merge_order: 4
+    dependencies:
+      - "02"
+      - "03"
+    ready_to_merge: false
+
+merge_sequence:
+  - step: 1
+    lane: "01"
+    description: "Merge lane 01 first – live plugin boot baseline required by all downstream lanes."
+    status: "pending"
+  - step: 2
+    lane: "02"
+    description: "Merge lane 02 after 01 – PHP template bridge depends on live boot path."
+    status: "pending"
+  - step: 3
+    lane: "03"
+    description: "Merge lane 03 after 01 (can run parallel with 02, merge order at review time)."
+    status: "pending"
+  - step: 4
+    lane: "04"
+    description: "Merge lane 04 last – verification/cutover gate requires 02 and 03."
+    status: "pending"
+  - step: 5
+    lane: "conductor"
+    description: "Conductor opens final PR from phase/1.1.0 to origin/main after all lanes green."
+    status: "pending"
+
+final_pr:
+  opened: false
+  pr_number: null
+  pr_url: null
+  verification_summary_attached: false
+  manifest_removed_before_merge: false
+
+## NOTE: This manifest must be removed before the final PR to origin/main is opened.
+## The structured summary is preserved in the final PR body instead.
