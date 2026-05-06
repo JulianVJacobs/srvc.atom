@@ -15,7 +15,7 @@
 | Phase branch | `phase/1.0.0` |
 | Conductor branch | `copilot/phase-100` |
 | Final merge target | `origin/main` |
-| Semver contract | minor (additive, plugin-scoped only) |
+| Semver contract | minor change class (additive, plugin-scoped only — see note below) |
 | Merge policy | eager-after-green into `phase/1.0.0` |
 
 ---
@@ -32,6 +32,8 @@
 ---
 
 ## Semver scope enforcement
+
+> **Note on version label vs. change class:** `1.0.0` is the phase/milestone identifier for this plugin fleet (the first owned release line for the AtoM-native plugin shell). The `srvc.atom` service package is currently at `0.1.0`. The **change class** for this phase is "minor" — meaning all work must be additive and plugin-scoped. If any lane requires a breaking or incompatible change, the contract must be escalated before implementation.
 
 - **Allowed:** additive plugin-owned files, new routes, new module actions, new templates inside the plugin surface, new persistence/linking contract artifacts, documentation, verification scripts.
 - **Requires escalation (stop condition):** patching AtoM core templates or modules, incompatible data-model migrations, removal of the hosted fallback route, any cutover of the primary capture path before native parity is demonstrated.
