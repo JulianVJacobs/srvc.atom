@@ -90,6 +90,7 @@
   - Owned surface: module actions, form class, templates/partials, validation and submission behavior
 - `[1.0.0][04-verification-decision]` Validate parity and client decision gate
   - Owned surface: verification scripts/checklist, parity evidence, fallback coexistence validation, decision summary
+  - Status: complete — see `docs/verification-checklist-1.0.0.md` and `docs/decision-note-1.0.0.md`
 
 ## Dependencies and merge order
 
