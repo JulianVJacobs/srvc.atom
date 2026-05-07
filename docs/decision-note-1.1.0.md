@@ -77,12 +77,16 @@ If the client chooses not to proceed with the native plugin path, the following 
 
 All 1.1.0 acceptance gates are satisfied. The surface area of the change is additive and plugin-scoped; no AtoM core modifications were made. The hosted fallback coexists safely and can remain available for as long as the client requires a parallel path. The risk profile is low and well-understood.
 
-Recommended action for conductor final PR:
+Conductor final actions completed:
 
-1. Merge this lane (`[1.1.0][04-verification-decision]`) to `phase/1.1.0`.
-2. Open the final integration PR from `phase/1.1.0` to `origin/main`.
-3. Include this decision note in the conductor PR body under "Decision".
-4. After merge, open planning for the next semver slice targeting full AtoM-native migration.
+1. ✅ Merged lane 01 (`[1.1.0][01-native-shell-contract]`) — plugin shell, routing baseline, persistence/linking contract.
+2. ✅ Merged lane 02 (`[1.1.0][02-add-menu-route]`) — Article menu entry, route binding, menu extension contract.
+3. ✅ Merged lane 03 (`[1.1.0][03-native-form-surface]`) — PHP article create/edit form, persistence model, AtoM-style templates.
+4. ✅ Merged lane 04 (`[1.1.0][04-verification-decision]`) — all acceptance gates PASS, decision note approved.
+5. ✅ Fleet manifest removed from `.github/fleet/1.1.0/manifest.yaml` (per contract, summary preserved in final PR body).
+6. ✅ Final integration PR from `phase/1.1.0` → `origin/main` opened.
+
+After merge, open planning for the next semver slice targeting full AtoM-native migration (recommended: `1.2.0`, or `2.0.0` if breaking data-model migration is required).
 
 ---
 
