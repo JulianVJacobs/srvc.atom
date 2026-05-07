@@ -1,0 +1,35 @@
+# sfArticlePlugin route definitions
+#
+# These routes are the baseline required by downstream lanes:
+#   - [1.1.0][02-php-template-bridge] consumes sfArticleCreate / sfArticleEdit.
+#   - [1.1.0][03-persistence-migration] relies on the write routes being present.
+#
+# All routes are plugin-owned.  No AtoM core routing file is modified.
+#
+# Lane: [1.1.0][01-native-shell-contract]
+
+sfArticleIndex:
+  url:   /article
+  param: { module: sfArticle, action: index }
+  requirements:
+    sf_method: [get]
+
+sfArticleCreate:
+  url:   /article/create
+  param: { module: sfArticle, action: create }
+  requirements:
+    sf_method: [get, post]
+
+sfArticleEdit:
+  url:   /article/:id/edit
+  param: { module: sfArticle, action: edit }
+  requirements:
+    id: \d+
+    sf_method: [get, post]
+
+sfArticleShow:
+  url:   /article/:id
+  param: { module: sfArticle, action: show }
+  requirements:
+    id: \d+
+    sf_method: [get]
