@@ -40,7 +40,7 @@
       <tbody>
         <?php foreach ($articles as $article): ?>
           <tr>
-            <td><?php echo isset($article['title']) ? esc_special_chars($article['title']) : '' ?></td>
+            <td><?php echo isset($article['title']) ? esc_specialchars($article['title']) : '' ?></td>
             <td>
               <?php echo link_to(__('Edit'), '@sfArticleEdit?id=' . $article['id']) ?>
             </td>

@@ -197,6 +197,17 @@
         var form = document.createElement('form');
         form.method = 'post';
         form.action = link.href;
+
+        // CSRF token (AtoM pattern: hidden field matching the main form token)
+        var csrf = document.querySelector('input[name="_csrf_token"]');
+        if (csrf) {
+          var token = document.createElement('input');
+          token.type = 'hidden';
+          token.name = '_csrf_token';
+          token.value = csrf.value;
+          form.appendChild(token);
+        }
+
         document.body.appendChild(form);
         form.submit();
       });
