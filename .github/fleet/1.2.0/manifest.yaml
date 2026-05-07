@@ -44,40 +44,39 @@ lanes:
 
   - id: "03-editor-flow-hardening"
     title: "[1.2.0][03-editor-flow-hardening] Improve native create/edit operational behavior"
-    readiness: "not-ready"
-    blockers:
-      - "No worker PR opened."
-      - "Dependency unmet: lane 01 and lane 02 must merge to phase/1.2.0."
+    readiness: "ready"
+    blockers: []
     pr_metadata:
-      status: "not-opened"
-      base: "phase/1.2.0"
+      number: 15
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/lane-120-03-editor-flow-hardening"
 
   - id: "04-cutover-runbook-gate"
     title: "[1.2.0][04-cutover-runbook-gate] Produce cutover readiness packet and recommendation"
-    readiness: "not-ready"
-    blockers:
-      - "No worker PR opened."
-      - "Dependencies unmet: lanes 02 and 03 must merge first."
+    readiness: "ready"
+    blockers: []
     pr_metadata:
-      status: "not-opened"
-      base: "phase/1.2.0"
+      number: 16
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/120-produce-cutover-readiness-packet"
 
 verification_summary:
   integrated_lane_checks:
     status: "in-progress"
     notes:
-      - "Latest completed workflow run has no failed jobs (run 25473627187)."
-      - "Lane PR #13 and #14 are merged into this conductor PR branch."
-      - "Lane 03 and lane 04 work is still pending before phase/1.2.0 integration."
+      - "Lane PR #13, #14, #15, and #16 are merged into this conductor PR branch."
+      - "Final integrated smoke validation on phase/1.2.0 remains pending."
   final_smoke_validation:
     status: "blocked"
     blockers:
-      - "Phase branch does not yet contain merged lane 01-04 outputs."
+      - "Final phase validation has not yet been rerun after lane 03 and 04 integration."
 
 decision_gate:
   result: "hold"
-  reason: "Lane 03 and lane 04 are still pending; final phase integration gate remains incomplete."
+  reason: "All lane branches are merged into conductor, but final integrated smoke validation is still pending."
   next_actions:
-    - "Merge this conductor PR so lane 01 and lane 02 updates are integrated."
-    - "Open lane 03 and lane 04 PRs against phase/1.2.0 after dependencies pass."
-    - "Run phase smoke validation after all lane gates pass; remove this manifest before final phase->main PR."
+    - "Merge this conductor PR so all lane updates are integrated in phase flow."
+    - "Execute final integrated smoke validation for 1.2.0 after merge."
+    - "Remove this manifest before opening final phase->main PR."

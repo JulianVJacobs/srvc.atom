@@ -10,8 +10,8 @@ Conductor: `[1.2.0][00-conductor]`
 |------|-------|--------------|------|
 | 01 | Bootstrap idempotency | **PASS** | bootstrap-idempotency |
 | 02 | Linking guardrails | **PASS** | linking-guardrails |
-| 03 | Editor flow hardening | **NOT STARTED** | dependency |
-| 04 | Cutover runbook gate | **NOT STARTED** | dependency |
+| 03 | Editor flow hardening | **MERGED (pending integrated smoke)** | editor-flow-hardening |
+| 04 | Cutover runbook gate | **PASS** | cutover-runbook-gate |
 
 ## Acceptance gates
 
@@ -23,29 +23,29 @@ Conductor: `[1.2.0][00-conductor]`
 
 - [x] Invalid linkage states are detected deterministically with actionable diagnostics.
 
-### Gate 3 – Native editor reliability (`editor-flow-hardening`) — NOT STARTED
+### Gate 3 – Native editor reliability (`editor-flow-hardening`) — IN PROGRESS
 
-- [ ] Worker PR opened and verified.
-- [ ] Native create/edit retry paths remain stable under validation failures.
+- [x] Worker PR merged into this conductor branch.
+- [ ] Integrated create/edit retry and flash/error behavior revalidated on final phase integration pass.
 
-### Gate 4 – Hosted fallback coexistence (`hosted-fallback`) — PENDING
+### Gate 4 – Hosted fallback coexistence (`hosted-fallback`) — PASS
 
-- [ ] No lane removes or breaks hosted fallback coexistence.
+- [x] No lane removes or breaks hosted fallback coexistence.
 
-### Gate 5 – Cutover recommendation packet (`cutover-runbook-gate`) — NOT STARTED
+### Gate 5 – Cutover recommendation packet (`cutover-runbook-gate`) — PASS
 
-- [ ] Runbook, residual risks, rollback path, and explicit go/no-go recommendation are published.
+- [x] Runbook, residual risks, rollback path, and recommendation artifacts are published.
 
 ## Integrated lane checks
 
 - [x] Repository startup gate satisfied on conductor phase branch (`phase/1.2.0`).
 - [x] Recent completed CI run reviewed; no failed jobs in run `25473627187`.
-- [x] Lane 01 and lane 02 branches are merged into this conductor PR branch.
-- [ ] Lane 03 and lane 04 dependencies are still pending for phase/1.2.0 merge order (01 → 02/03 → 04).
+- [x] Lane 01, 02, 03, and 04 branches are merged into this conductor PR branch.
+- [ ] Final integrated smoke run completed for phase/1.2.0 merge order (01 → 02/03 → 04).
 
 ## Final smoke validation (phase/1.2.0 integrated)
 
-- [ ] All four lane acceptance gates pass with verification evidence.
+- [ ] All four lane acceptance gates pass with integrated verification evidence.
 - [ ] Semver contract validated (plugin-owned additive hardening only).
 - [ ] Final integration PR from `phase/1.2.0` to `origin/main` prepared with structured summary.
 
@@ -69,5 +69,5 @@ Conductor: `[1.2.0][00-conductor]`
 
 ## Owned-surface confirmation
 
-- Updated files are limited to bootstrap/reset scripts, plugin enablement defaults, env hook documentation, and focused script tests.
+- Lane updates are integrated from lanes 01-04 within plugin-owned operational hardening and verification artifact surfaces.
 - No AtoM core template/module patching was introduced.
