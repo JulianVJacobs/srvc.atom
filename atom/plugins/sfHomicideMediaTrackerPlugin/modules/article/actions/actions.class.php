@@ -72,6 +72,8 @@ class articleActions extends sfActions
             }
         }
 
+        // PRG recovery: when persistence fails we redirect back to GET/new and
+        // rehydrate user-entered defaults from flash for deterministic retry.
         $this->restoreFormRetryValues($this->form);
         $this->setTemplate('create');
     }
@@ -128,6 +130,8 @@ class articleActions extends sfActions
             $this->form->populateFromArticle($this->article);
         }
 
+        // PRG recovery: when persistence fails we redirect back to GET/edit and
+        // rehydrate user-entered defaults from flash for deterministic retry.
         $this->restoreFormRetryValues($this->form);
         $this->setTemplate('edit');
     }
