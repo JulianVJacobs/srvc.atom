@@ -1,0 +1,86 @@
+version: "1.2.0"
+phase: "Native article cutover prep + operational hardening"
+phase_branch: "phase/1.2.0"
+final_merge_target: "origin/main"
+merge_policy: "eager-after-green"
+updated_at: "2026-05-07"
+
+startup_gate:
+  repository: "pass"
+  branch: "pass"
+  evidence:
+    remote: "https://github.com/JulianVJacobs/srvc.atom"
+    active_branch: "phase/1.2.0"
+
+semver_scope:
+  allowed_change_class: "minor"
+  constraints:
+    - "additive plugin-owned hardening only"
+    - "no AtoM core template/module patching"
+    - "no backward-incompatible persistence/linking contract changes"
+    - "no hosted fallback removal"
+  status: "pass"
+
+lanes:
+  - id: "01-bootstrap-idempotency"
+    title: "[1.2.0][01-bootstrap-idempotency] Harden plugin bootstrap and idempotent enablement"
+    readiness: "blocked"
+    blockers:
+      - "PR #13 targets base 'main' (must target 'phase/1.2.0')."
+      - "PR title is prefixed with '[WIP]' and does not satisfy strict lane prefix gate."
+    pr_metadata:
+      number: 13
+      status: "open"
+      base: "main"
+      head: "copilot/harden-plugin-bootstrap-idempotency"
+
+  - id: "02-linking-guardrails"
+    title: "[1.2.0][02-linking-guardrails] Enforce persistence/linking guardrails and diagnostics"
+    readiness: "blocked"
+    blockers:
+      - "PR #14 targets base 'main' (must target 'phase/1.2.0')."
+      - "Dependency unmet: lane 01 is not merged into phase/1.2.0."
+    pr_metadata:
+      number: 14
+      status: "open"
+      base: "main"
+      head: "copilot/1-2-0-enforce-linking-guardrails"
+
+  - id: "03-editor-flow-hardening"
+    title: "[1.2.0][03-editor-flow-hardening] Improve native create/edit operational behavior"
+    readiness: "not-ready"
+    blockers:
+      - "No worker PR opened."
+      - "Dependency unmet: lane 01 must merge first."
+    pr_metadata:
+      status: "not-opened"
+      base: "phase/1.2.0"
+
+  - id: "04-cutover-runbook-gate"
+    title: "[1.2.0][04-cutover-runbook-gate] Produce cutover readiness packet and recommendation"
+    readiness: "not-ready"
+    blockers:
+      - "No worker PR opened."
+      - "Dependencies unmet: lanes 02 and 03 must merge first."
+    pr_metadata:
+      status: "not-opened"
+      base: "phase/1.2.0"
+
+verification_summary:
+  integrated_lane_checks:
+    status: "in-progress"
+    notes:
+      - "Latest completed workflow run has no failed jobs (run 25473627187)."
+      - "No 1.2.0 worker lane currently satisfies PR-base gate for merge into phase/1.2.0."
+  final_smoke_validation:
+    status: "blocked"
+    blockers:
+      - "Phase branch does not yet contain merged lane 01-04 outputs."
+
+decision_gate:
+  result: "hold"
+  reason: "PR-gate noncompliance and unmet lane dependencies prevent merge sequencing and final integration PR."
+  next_actions:
+    - "Retarget lane PR #13 and #14 to base phase/1.2.0 with compliant titles."
+    - "Open lane 03 and lane 04 PRs against phase/1.2.0 after dependencies pass."
+    - "Run phase smoke validation after all lane gates pass; remove this manifest before final phase->main PR."
