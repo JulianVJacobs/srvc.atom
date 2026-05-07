@@ -183,7 +183,10 @@ class articleActions extends sfActions
 
     private function storeFormRetryValues(array $values)
     {
-        $allowedKeys = array_keys((new ArticleEditForm())->getWidgetSchema()->getFields());
+        static $allowedKeys = null;
+        if (null === $allowedKeys) {
+            $allowedKeys = array_keys((new ArticleEditForm())->getWidgetSchema()->getFields());
+        }
         $stored      = [];
 
         foreach ($allowedKeys as $key) {
