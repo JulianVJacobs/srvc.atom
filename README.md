@@ -24,4 +24,5 @@ Planning:
 - `1.0.0` is now launch-ready with an integrated lane plan where plugin scaffolding and persistence/linking contract definition are combined into lane `[1.0.0][01-native-shell-contract]`.
 - Status update (2026-05-06): Phase `1.0.0` is complete (worker lanes merged, conductor merged to `main`, issues closed, branches removed). Next work moves to a new semver slice.
 - Status update (2026-05-07): Phase `1.1.0` is complete and merged to `main`.
-- Active planning slice: `1.2.0` (native-path cutover preparation + operations hardening) is proposed in `PLAN.md` and awaiting approval.
+- Status update (2026-05-07): Phase `1.2.0` is complete and merged to `main`.
+- Next planning step: define and approve the next semver slice in `PLAN.md` before launching additional lanes.

@@ -2,10 +2,10 @@
 
 ## Active track
 
-- Version: `1.2.0` (proposed)
+- Version: `1.2.0`
 - Track: Native-path cutover preparation and operations hardening
 - Ownership: `srvc.atom`
-- Status: awaiting contract approval
+- Status: completed on `main`
 
 ## Active update (2026-05-07)
 
@@ -14,12 +14,13 @@
   - Native article plugin first draft established with closed PR/issues and removed phase manifest.
   - Client direction confirmed: continue on native AtoM plugin path.
   - Phase `1.1.0` hardening/migration-foundation fleet fully completed and merged to `main` via PR `#6`.
+  - Phase `1.2.0` cutover-prep fleet fully completed and merged to `main` via PR `#12`.
 - Remaining scope in this phase:
-  - Approve and launch phase `1.2.0` cutover-preparation work.
+  - Define and approve the next semver contract.
 - Next slice:
-  - Execute phase `1.2.0` lanes in dependency order and cut final integration PR to `origin/main`.
+  - Draft and approve the next parallel-safe phase decomposition before lane launch.
 
-## Phase 1.2.0 contract (proposed)
+## Phase 1.2.0 contract (completed)
 
 - Phase name: Native article cutover prep + operational hardening
 - Planned version: `1.2.0`
