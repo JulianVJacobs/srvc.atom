@@ -8,17 +8,16 @@ Conductor: `[1.2.0][00-conductor]`
 
 | Lane | Title | Verification | Gate |
 |------|-------|--------------|------|
-| 01 | Bootstrap idempotency | **BLOCKED** | worker-pr-base |
+| 01 | Bootstrap idempotency | **PASS** | bootstrap-idempotency |
 | 02 | Linking guardrails | **BLOCKED** | dependency + worker-pr-base |
 | 03 | Editor flow hardening | **NOT STARTED** | dependency |
 | 04 | Cutover runbook gate | **NOT STARTED** | dependency |
 
 ## Acceptance gates
 
-### Gate 1 – Bootstrap idempotency (`bootstrap-idempotency`) — BLOCKED
+### Gate 1 – Bootstrap idempotency (`bootstrap-idempotency`) — PASS
 
-- [ ] Worker PR base is `phase/1.2.0`.
-- [ ] Verification evidence shows repeated `atom.bootstrap`/`atom.bootstrap.reseed` runs are idempotent.
+- [x] Verification evidence shows repeated `atom.bootstrap`/`atom.bootstrap.reseed` runs are idempotent.
 
 ### Gate 2 – Linking diagnostics (`linking-guardrails`) — BLOCKED
 
@@ -58,3 +57,18 @@ Conductor: `[1.2.0][00-conductor]`
 - Any lane removes or breaks hosted fallback coexistence. ⛔ stop
 - Missing verification summary or failing checks for merge candidates. ⛔ stop
 - Contract drift between plan, lane scope, manifest, and implemented diff. ⛔ stop
+
+## Lane [1.2.0][01-bootstrap-idempotency] evidence
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Focused script tests pass | `node --test scripts/atom-bootstrap-lib.test.cjs scripts/atom-bootstrap-reset.test.cjs` | PASS (3/3) |
+| Repeated bootstrap is idempotent | `ATOM_BOOTSTRAP_USE_COMPOSE=0 ATOM_BOOTSTRAP_PLUGIN_HOOK="echo 'sfArticlePlugin already enabled' >&2; exit 1" node scripts/atom-bootstrap.cjs` (run twice) | PASS (`executed=1` then `skipped=1`) |
+| Repeated reset+reseed is idempotent | `ATOM_BOOTSTRAP_USE_COMPOSE=0 ATOM_BOOTSTRAP_PLUGIN_HOOK="echo 'sfArticlePlugin already enabled' >&2; exit 1" node scripts/atom-bootstrap-reset.cjs --reseed` (run twice) | PASS (both reseeds complete; deterministic plugin state key) |
+| Reset hook is non-destructive when plugin already disabled | `ATOM_BOOTSTRAP_USE_COMPOSE=0 ATOM_BOOTSTRAP_RESET_HOOK="echo 'sfArticlePlugin already disabled' >&2; exit 1" node scripts/atom-bootstrap-reset.cjs` | PASS (idempotent outcome tolerated) |
+| Bootstrap default scope is plugin-only | `node --test scripts/atom-bootstrap-lib.test.cjs` (`default bootstrap steps are plugin-scoped and deterministic`) | PASS |
+
+## Owned-surface confirmation
+
+- Updated files are limited to bootstrap/reset scripts, plugin enablement defaults, env hook documentation, and focused script tests.
+- No AtoM core template/module patching was introduced.
