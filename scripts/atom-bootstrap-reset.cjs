@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const {
+  DEFAULT_PLUGIN_DISABLE_HOOK,
   IDEMPOTENT_ERROR_PATTERN,
   buildExecutionCommand,
   createDefaultSteps,
@@ -14,10 +15,7 @@ const {
 const shouldReseed = process.argv.includes('--reseed');
 const forceReseed = process.argv.includes('--force');
 const stateFile = resolveStateFile(process.env);
-const resetHook = (
-  process.env.ATOM_BOOTSTRAP_RESET_HOOK ||
-  "php symfony plugins | grep -Eq '(^|[[:space:]])sfArticlePlugin([[:space:]]|$)' && php symfony plugins:disable sfArticlePlugin || echo 'sfArticlePlugin already disabled'"
-).trim();
+const resetHook = (process.env.ATOM_BOOTSTRAP_RESET_HOOK || DEFAULT_PLUGIN_DISABLE_HOOK).trim();
 
 try {
   if (resetHook) {

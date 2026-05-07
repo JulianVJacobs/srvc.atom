@@ -18,9 +18,13 @@ const defaultComposeEnvFile = path.join(
   'atom-stack',
   '.env.example',
 );
+const ARTICLE_PLUGIN_NAME = 'sfArticlePlugin';
+const ARTICLE_PLUGIN_ENABLED_CHECK = `php symfony plugins | grep -Eq '(^|[ \t])${ARTICLE_PLUGIN_NAME}([ \t]|$)'`;
+const DEFAULT_PLUGIN_ENABLE_HOOK = `if ${ARTICLE_PLUGIN_ENABLED_CHECK}; then echo '${ARTICLE_PLUGIN_NAME} already enabled'; else php symfony plugins:enable ${ARTICLE_PLUGIN_NAME}; fi`;
+const DEFAULT_PLUGIN_DISABLE_HOOK = `if ${ARTICLE_PLUGIN_ENABLED_CHECK}; then php symfony plugins:disable ${ARTICLE_PLUGIN_NAME}; else echo '${ARTICLE_PLUGIN_NAME} already disabled'; fi`;
 
 const IDEMPOTENT_ERROR_PATTERN =
-  /already exists|already enabled|already disabled|not enabled|duplicate|has already been taken|not changed/i;
+  /already exists|already enabled|already disabled|duplicate|has already been taken|not changed/i;
 
 const DEFAULT_STEPS = [
   {
@@ -39,8 +43,7 @@ const DEFAULT_STEPS = [
     id: 'plugin-enablement',
     description: 'Enable AtoM plugin required for hosted integration',
     envKey: 'ATOM_BOOTSTRAP_PLUGIN_HOOK',
-    defaultHook:
-      "php symfony plugins | grep -Eq '(^|[[:space:]])sfArticlePlugin([[:space:]]|$)' && echo 'sfArticlePlugin already enabled' || php symfony plugins:enable sfArticlePlugin",
+    defaultHook: DEFAULT_PLUGIN_ENABLE_HOOK,
   },
   {
     id: 'baseline-initialization',
@@ -245,6 +248,8 @@ function resetBootstrapState(stateFile = resolveStateFile()) {
 }
 
 module.exports = {
+  DEFAULT_PLUGIN_DISABLE_HOOK,
+  DEFAULT_PLUGIN_ENABLE_HOOK,
   IDEMPOTENT_ERROR_PATTERN,
   buildExecutionCommand,
   createDefaultSteps,

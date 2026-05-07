@@ -19,6 +19,21 @@ test('default bootstrap steps are plugin-scoped and deterministic', () => {
   assert.match(activeSteps[0].command.args[1], /plugins:enable sfArticlePlugin/);
 });
 
+test('createDefaultSteps supports explicit hook overrides', () => {
+  const steps = createDefaultSteps({
+    ATOM_BOOTSTRAP_USE_COMPOSE: '0',
+    ATOM_BOOTSTRAP_ADMIN_HOOK: 'echo admin',
+    ATOM_BOOTSTRAP_PLUGIN_HOOK: 'echo plugin',
+    ATOM_BOOTSTRAP_BASELINE_HOOK: 'echo baseline',
+  });
+  const activeStepIds = steps.filter((step) => step.command).map((step) => step.id);
+  assert.deepEqual(activeStepIds, [
+    'admin-setup',
+    'plugin-enablement',
+    'baseline-initialization',
+  ]);
+});
+
 test('executeBootstrap tolerates idempotent plugin-enablement errors', () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'atom-bootstrap-lib-'));
   const stateFile = path.join(tempDir, 'state.json');
@@ -67,4 +82,6 @@ test('executeBootstrap tolerates idempotent plugin-enablement errors', () => {
 
   assert.equal(second.executed, 0);
   assert.equal(second.skipped, 1);
+
+  fs.rmSync(tempDir, { recursive: true, force: true });
 });

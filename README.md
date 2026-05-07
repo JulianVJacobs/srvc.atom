@@ -16,6 +16,8 @@ Typical commands:
 - `npm run atom.bootstrap`
 - `npm run atom.bootstrap.reseed`
 
+Bootstrap defaults are plugin-only (`sfArticlePlugin` enable/disable). If you need full AtoM installation/search bootstrap from this script, explicitly set `ATOM_BOOTSTRAP_ADMIN_HOOK` and `ATOM_BOOTSTRAP_BASELINE_HOOK`.
+
 Planning:
 
 - `PLAN.md` tracks the AtoM-native plugin roadmap owned by `srvc.atom`, beginning with version `1.0.0` for the first-draft native article plugin.
