@@ -165,11 +165,28 @@ class articleActions extends sfActions
 
     private function storeFormRetryValues(array $values)
     {
-        $this->getUser()->setFlash(self::FORM_RETRY_FLASH_KEY, $values);
+        $allowedKeys = ['title', 'source', 'url', 'publication_date', 'summary', 'status'];
+        $stored      = [];
+
+        foreach ($allowedKeys as $key) {
+            if (!array_key_exists($key, $values)) {
+                continue;
+            }
+
+            if (null === $values[$key] || is_scalar($values[$key])) {
+                $stored[$key] = $values[$key];
+            }
+        }
+
+        $this->getUser()->setFlash(self::FORM_RETRY_FLASH_KEY, $stored);
     }
 
     private function restoreFormRetryValues(ArticleEditForm $form)
     {
+        if ($form->isBound() || $this->getRequest()->isMethod('post')) {
+            return;
+        }
+
         if (!$this->getUser()->hasFlash(self::FORM_RETRY_FLASH_KEY)) {
             return;
         }
