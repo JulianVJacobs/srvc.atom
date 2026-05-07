@@ -58,6 +58,12 @@ class QubitHmtArticle
 
     const ACTOR_LOOKUP_SQL = 'SELECT 1 FROM actor WHERE id = ? LIMIT 1';
     const RECORD_LOOKUP_SQL = 'SELECT 1 FROM information_object WHERE id = ? LIMIT 1';
+    const POSITIVE_INT_PATTERN = '/^[1-9][0-9]*$/';
+
+    const LINKAGE_SCHEMA_ALTER_SQL = [
+        'atom_actor_id' => 'ALTER TABLE hmt_article ADD COLUMN atom_actor_id INT DEFAULT NULL',
+        'atom_record_id' => 'ALTER TABLE hmt_article ADD COLUMN atom_record_id INT DEFAULT NULL',
+    ];
 
     // Status constants
     const STATUS_DRAFT  = 'draft';
@@ -355,7 +361,7 @@ SQL;
 
         $value = trim((string) $values[$field]);
 
-        if (!preg_match('/^[1-9][0-9]*$/', $value)) {
+        if (!preg_match(self::POSITIVE_INT_PATTERN, $value)) {
             $diagnostics[] = [
                 'field' => $field,
                 'code' => 'invalid_link_format',
@@ -380,7 +386,7 @@ SQL;
         );
 
         if (!$stmt->fetchColumn()) {
-            QubitPdo::modify(sprintf('ALTER TABLE hmt_article ADD COLUMN %s INT DEFAULT NULL', $columnName));
+            QubitPdo::modify(self::LINKAGE_SCHEMA_ALTER_SQL[$columnName]);
         }
     }
 
