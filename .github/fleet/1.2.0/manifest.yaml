@@ -1,0 +1,60 @@
+version: "1.2.0"
+phase: "Native article cutover prep + operational hardening"
+phase_branch: "phase/1.2.0"
+final_merge_target: "origin/main"
+merge_policy: "eager-after-green"
+updated_at: "2026-05-07"
+
+lanes:
+  - id: "01-bootstrap-idempotency"
+    title: "[1.2.0][01-bootstrap-idempotency] Harden plugin bootstrap and idempotent enablement"
+    readiness: "ready"
+    blockers: []
+    pr_metadata:
+      status: "open"
+      head: "copilot/harden-plugin-bootstrap-idempotency"
+      base: "phase/1.2.0"
+
+  - id: "02-linking-guardrails"
+    title: "[1.2.0][02-linking-guardrails] Enforce persistence/linking guardrails and diagnostics"
+    readiness: "blocked"
+    blockers:
+      - "Lane branch not merged into integration branch"
+      - "Implementation/evidence not yet present beyond planning commit"
+    pr_metadata:
+      status: "open"
+      head: "copilot/1-2-0-enforce-linking-guardrails"
+      base: "phase/1.2.0"
+
+  - id: "03-editor-flow-hardening"
+    title: "[1.2.0][03-editor-flow-hardening] Improve native create/edit operational behavior"
+    readiness: "blocked"
+    blockers:
+      - "Lane branch not merged into integration branch"
+      - "Most recent workflow run still in progress"
+      - "Implementation/evidence not yet present beyond planning commit"
+    pr_metadata:
+      status: "open"
+      head: "copilot/lane-120-03-editor-flow-hardening"
+      base: "phase/1.2.0"
+
+  - id: "04-cutover-runbook-gate"
+    title: "[1.2.0][04-cutover-runbook-gate] Produce cutover readiness packet and recommendation"
+    readiness: "blocked"
+    blockers:
+      - "Upstream dependency gate not satisfied (lanes 02/03 not merged and stable)"
+    pr_metadata:
+      status: "open"
+      head: "copilot/120-produce-cutover-readiness-packet"
+      base: "phase/1.2.0"
+      title_prefix: "[1.2.0][04-cutover-runbook-gate]"
+      artifacts:
+        - "docs/verification-runbook-1.2.0.md"
+        - "docs/verification-checklist-1.2.0.md"
+        - "docs/decision-note-1.2.0.md"
+        - ".github/fleet/1.2.0/manifest.yaml"
+
+decision:
+  outcome: "no-go-pending-lane-merge-and-stability"
+  summary: "Cutover readiness packet produced. Upstream lanes 02 and 03 are not merged/stable, so end-to-end behavior and guardrail acceptance remains blocked."
+  recommendation: "Do not advance to next cutover phase until dependency and stability gates pass and lane 04 checklist is rerun."
