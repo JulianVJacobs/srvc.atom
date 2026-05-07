@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const {
+  DEFAULT_PLUGIN_DISABLE_HOOK,
+  IDEMPOTENT_ERROR_PATTERN,
   buildExecutionCommand,
   createDefaultSteps,
   executeBootstrap,
@@ -13,17 +15,22 @@ const {
 const shouldReseed = process.argv.includes('--reseed');
 const forceReseed = process.argv.includes('--force');
 const stateFile = resolveStateFile(process.env);
-const resetHook = (process.env.ATOM_BOOTSTRAP_RESET_HOOK || '').trim();
+const resetHook = (process.env.ATOM_BOOTSTRAP_RESET_HOOK || DEFAULT_PLUGIN_DISABLE_HOOK).trim();
 
 try {
   if (resetHook) {
     const resetCommand = buildExecutionCommand(resetHook, process.env);
     const output = executeCommand(resetCommand);
     if (output.status !== 0) {
-      const failureOutput = formatCommandFailure(output.stdout, output.stderr);
-      throw new Error(
-        `Reset hook failed with status ${output.status}.\n${failureOutput}`.trim(),
-      );
+      const combinedOutput = `${output.stdout}\n${output.stderr}`;
+      if (IDEMPOTENT_ERROR_PATTERN.test(combinedOutput)) {
+        console.log('Treating reset hook as successful (idempotent outcome).');
+      } else {
+        const failureOutput = formatCommandFailure(output.stdout, output.stderr);
+        throw new Error(
+          `Reset hook failed with status ${output.status}.\n${failureOutput}`.trim(),
+        );
+      }
     }
   }
 

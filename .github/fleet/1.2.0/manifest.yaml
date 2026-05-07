@@ -1,0 +1,82 @@
+version: "1.2.0"
+phase: "Native article cutover prep + operational hardening"
+phase_branch: "phase/1.2.0"
+final_merge_target: "origin/main"
+merge_policy: "eager-after-green"
+updated_at: "2026-05-07"
+
+startup_gate:
+  repository: "pass"
+  branch: "pass"
+  evidence:
+    remote: "https://github.com/JulianVJacobs/srvc.atom"
+    active_branch: "phase/1.2.0"
+
+semver_scope:
+  allowed_change_class: "minor"
+  constraints:
+    - "additive plugin-owned hardening only"
+    - "no AtoM core template/module patching"
+    - "no backward-incompatible persistence/linking contract changes"
+    - "no hosted fallback removal"
+  status: "pass"
+
+lanes:
+  - id: "01-bootstrap-idempotency"
+    title: "[1.2.0][01-bootstrap-idempotency] Harden plugin bootstrap and idempotent enablement"
+    readiness: "ready"
+    blockers: []
+    pr_metadata:
+      number: 13
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/harden-plugin-bootstrap-idempotency"
+
+  - id: "02-linking-guardrails"
+    title: "[1.2.0][02-linking-guardrails] Enforce persistence/linking guardrails and diagnostics"
+    readiness: "ready"
+    blockers: []
+    pr_metadata:
+      number: 14
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/1-2-0-enforce-linking-guardrails"
+
+  - id: "03-editor-flow-hardening"
+    title: "[1.2.0][03-editor-flow-hardening] Improve native create/edit operational behavior"
+    readiness: "ready"
+    blockers: []
+    pr_metadata:
+      number: 15
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/lane-120-03-editor-flow-hardening"
+
+  - id: "04-cutover-runbook-gate"
+    title: "[1.2.0][04-cutover-runbook-gate] Produce cutover readiness packet and recommendation"
+    readiness: "ready"
+    blockers: []
+    pr_metadata:
+      number: 16
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
+      head: "copilot/120-produce-cutover-readiness-packet"
+
+verification_summary:
+  integrated_lane_checks:
+    status: "in-progress"
+    notes:
+      - "Lane PR #13, #14, #15, and #16 are merged into this conductor PR branch."
+      - "Final integrated smoke validation on phase/1.2.0 remains pending."
+  final_smoke_validation:
+    status: "blocked"
+    blockers:
+      - "Final phase validation has not yet been rerun after lane 03 and 04 integration."
+
+decision_gate:
+  result: "hold"
+  reason: "All lane branches are merged into conductor, but final integrated smoke validation is still pending."
+  next_actions:
+    - "Merge this conductor PR so all lane updates are integrated in phase flow."
+    - "Execute final integrated smoke validation for 1.2.0 after merge."
+    - "Remove this manifest before opening final phase->main PR."
