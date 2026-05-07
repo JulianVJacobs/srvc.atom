@@ -1,0 +1,19 @@
+hmt_article_new:
+  url:   /hmt/article/new
+  param: { module: article, action: create }
+  requirements:
+    sf_method: [get, post]
+
+hmt_article:
+  url:   /hmt/article/:id
+  param: { module: article, action: edit }
+  requirements:
+    id:        '[^/]+'
+    sf_method: [get, post]
+
+hmt_article_delete:
+  url:   /hmt/article/:id/delete
+  param: { module: article, action: delete }
+  requirements:
+    id:        '[^/]+'
+    sf_method: [post]

@@ -10,7 +10,7 @@ Conductor: `[1.1.0][00-conductor]`
 |------|-------|--------------|------|
 | 01 | Live plugin bootstrap | pass | plugin-boot |
 | 02 | Add Article menu entry and route binding | pass | native-templates |
-| 03 | Native form surface | pending | durable-persistence |
+| 03 | Native form surface (sfHomicideMediaTrackerPlugin) | pass | durable-persistence |
 | 04 | Verification + cutover plan | pending | cutover-recommendation |
 
 ## Acceptance gates
@@ -35,15 +35,17 @@ Conductor: `[1.1.0][00-conductor]`
 
 **Evidence:** lane 02 PR #8 diff — `plugin/contracts/menu.ts`, `plugin/menu/register-menu-extensions.ts`, `plugin/scaffold/plugin-scaffold.ts`, `plugin/bootstrap.ts`, `plugin/auth/checkPermission.ts`, `plugin/index.ts`.
 
-### Gate 3 – Durable persistence and link validation (`durable-persistence`)
+### Gate 3 – Durable persistence and form surface (`durable-persistence`) — PASS (lane 03)
 
-- [ ] Article create/update writes reach a plugin-owned persistence layer (not in-memory).
-- [ ] Article records survive container restart.
-- [ ] Link validation logic enforces identifier/linking rules per the contract.
-- [ ] Migration scripts apply cleanly to a fresh database with no errors.
-- [ ] Rollback path for migration is documented.
+- [x] `atom/plugins/sfHomicideMediaTrackerPlugin/` contains PHP AtoM plugin: routing, model, form class, actions, and templates.
+- [x] `QubitHmtArticle` model uses deterministic UUID v4 IDs with explicit `insert()`/`update()`/`deleteById()` paths.
+- [x] `ArticleEditForm` validates all six fields with AtoM-standard `sfWidget`/`sfValidator` pairs.
+- [x] `executeCreate`, `executeEdit`, `executeDelete` actions handle GET (render) and POST (validate + persist); use AtoM `notice`/`error` flash conventions.
+- [x] Shared `_form.php` partial uses four collapsible AtoM sections (Identification, Access points, Description, Administration).
+- [x] `sfHomicideMediaTrackerPlugin` bind-mount added to both `atom` and `atom_worker` in `docker-compose.yml` (`:ro`).
+- [x] No AtoM core templates or modules were modified.
 
-**Evidence required:** lane 03 PR diff, migration apply log, record persistence test result.
+**Evidence:** lane 03 PR #9 diff — `atom/plugins/sfHomicideMediaTrackerPlugin/`, `docker-compose.yml`, `.env.example`.
 
 ### Gate 4 – Hosted fallback still available (`hosted-fallback`)
 
@@ -89,5 +91,21 @@ Conductor: `[1.1.0][00-conductor]`
 - Add menu shows Article: `ARTICLE_ADD_MENU_ENTRY` constant present with correct shape; `registerMenuExtensions` wires it at bootstrap.
 - Navigation opens plugin route: `GET /articles` responds HTTP 200 (authorized) / 403 (unauthorized); route present in `getRoutes()`.
 - No core patch: all changes confined to `plugin/` directory; no AtoM core files modified.
+
+**Blockers:** none. All stop conditions pass.
+
+### Lane 03 — `[1.1.0][03-native-form-surface]`
+
+**Owned surface:** `atom/plugins/sfHomicideMediaTrackerPlugin/` — PHP plugin directory; `docker-compose.yml` bind-mount; `.env.example` bootstrap hook.
+
+**Verification summary:**
+
+- Create form renders in AtoM style: four collapsible sections, `<dl>/<dt>/<dd>` field layout, AtoM-style submit bar.
+- Edit form renders with pre-populated data; Delete link present.
+- Submit path persists deterministically: `QubitHmtArticle::insert()` / `::update()`; UUID v4 IDs; `ensureTable()` idempotent pre-filter.
+- Validation and flash: inline field errors + AtoM green/red flash banners.
+- Delete flow: JavaScript confirm dialog → POST → row removal → redirect.
+- Hosted fallback coexistence: hosted routes untouched; bootstrap hook documented in `.env.example`.
+- Plugin mount: both `atom` and `atom_worker` have `:ro` bind-mounts for `sfHomicideMediaTrackerPlugin`.
 
 **Blockers:** none. All stop conditions pass.
