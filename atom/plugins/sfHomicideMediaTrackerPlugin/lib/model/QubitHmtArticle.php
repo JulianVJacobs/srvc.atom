@@ -242,9 +242,9 @@ SQL;
         $obj->publicationDate = $row['publication_date'];
         $obj->summary         = $row['summary'];
         $obj->status          = $row['status'];
-        $obj->atomActorId     = array_key_exists('atom_actor_id', $row) ? $row['atom_actor_id'] : null;
-        $obj->atomRecordId    = array_key_exists('atom_record_id', $row) ? $row['atom_record_id'] : null;
-        $obj->atomObjectId    = array_key_exists('atom_object_id', $row) ? $row['atom_object_id'] : null;
+        $obj->atomActorId     = $row['atom_actor_id'] ?? null;
+        $obj->atomRecordId    = $row['atom_record_id'] ?? null;
+        $obj->atomObjectId    = $row['atom_object_id'] ?? null;
         $obj->createdAt       = $row['created_at'];
         $obj->updatedAt       = $row['updated_at'];
 
@@ -371,7 +371,21 @@ SQL;
             return null;
         }
 
-        return (int) $value;
+        $intValue = filter_var($value, FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX],
+        ]);
+
+        if (false === $intValue) {
+            $diagnostics[] = [
+                'field' => $field,
+                'code' => 'invalid_link_range',
+                'message' => sprintf('%s must be within the supported integer id range.', $field),
+            ];
+
+            return null;
+        }
+
+        return $intValue;
     }
 
     private static function ensureNullableIntColumn($columnName)
@@ -406,10 +420,16 @@ SQL;
             throw new InvalidArgumentException(sprintf('Invalid linkage lookup table "%s".', $table));
         }
 
+        if (!is_int($id) || $id < 1) {
+            return false;
+        }
+
         if ('actor' === $table) {
             $sql = self::ACTOR_LOOKUP_SQL;
-        } else {
+        } elseif ('information_object' === $table) {
             $sql = self::RECORD_LOOKUP_SQL;
+        } else {
+            throw new InvalidArgumentException(sprintf('Unsupported linkage lookup table "%s".', $table));
         }
 
         $stmt = QubitPdo::prepareAndExecute($sql, [$id]);
