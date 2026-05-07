@@ -186,7 +186,5 @@ class articleActions extends sfActions
         }
 
         $form->bind($values);
-        // Trigger validation so inline field errors are populated after PRG recovery.
-        $form->isValid();
     }
 }
