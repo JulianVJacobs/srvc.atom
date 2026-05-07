@@ -20,15 +20,14 @@ const defaultComposeEnvFile = path.join(
 );
 
 const IDEMPOTENT_ERROR_PATTERN =
-  /already exists|already enabled|duplicate|has already been taken|not changed/i;
+  /already exists|already enabled|already disabled|not enabled|duplicate|has already been taken|not changed/i;
 
 const DEFAULT_STEPS = [
   {
     id: 'admin-setup',
     description: 'Provision initial AtoM administrator account',
     envKey: 'ATOM_BOOTSTRAP_ADMIN_HOOK',
-    defaultHook:
-      'php -d memory_limit=${ATOM_INSTALL_MEMORY_LIMIT:-2G} symfony tools:install --database-host="${ATOM_DB_HOST:-atom-db}" --database-port="${ATOM_DB_PORT:-3306}" --database-name="${ATOM_DB_NAME:-atom}" --database-user="${ATOM_DB_USER:-atom}" --database-password="${ATOM_DB_PASSWORD:-REPLACE_WITH_SECURE_DB_PASSWORD}" --search-host="${ATOM_SEARCH_HOST:-elasticsearch}" --search-port="${ATOM_SEARCH_PORT:-9200}" --search-index="${ATOM_SEARCH_INDEX:-atom}" --site-title="${ATOM_SITE_NAME:-AtoM}" --site-description="${ATOM_SITE_DESCRIPTION:-Local AtoM dev stack}" --site-base-url="${ATOM_SITE_BASE_URL:-http://127.0.0.1:62080}" --admin-email="${ATOM_ADMIN_EMAIL:-admin@example.invalid}" --admin-username="${ATOM_ADMIN_USERNAME:-admin}" --admin-password="${ATOM_ADMIN_PASSWORD:-Admin123!}" --no-confirmation',
+    defaultHook: '',
   },
   {
     id: 'bootstrap-user-state',
@@ -40,13 +39,14 @@ const DEFAULT_STEPS = [
     id: 'plugin-enablement',
     description: 'Enable AtoM plugin required for hosted integration',
     envKey: 'ATOM_BOOTSTRAP_PLUGIN_HOOK',
-    defaultHook: 'php symfony plugins:enable sfArticlePlugin',
+    defaultHook:
+      "php symfony plugins | grep -Eq '(^|[[:space:]])sfArticlePlugin([[:space:]]|$)' && echo 'sfArticlePlugin already enabled' || php symfony plugins:enable sfArticlePlugin",
   },
   {
     id: 'baseline-initialization',
     description: 'Run baseline first-run initialization',
     envKey: 'ATOM_BOOTSTRAP_BASELINE_HOOK',
-    defaultHook: 'php symfony search:populate',
+    defaultHook: '',
   },
 ];
 
