@@ -28,24 +28,26 @@ Rules:
 8. Do not include explanatory prose between code blocks.
 9. Every lane prompt must include a Repository lock directive section before lane identity.
 10. Repository lock must include startup gates and PR gates that prevent cross-repo drift.
+11. Treat cloud runtime branch name and working directory path as potentially non-deterministic; enforce repository and PR target safety as hard gates, and treat branch/path mismatch as a warning unless cross-repo risk exists.
 
 Repository lock directive (required in every generated lane prompt):
 
 - Hard scope:
   - Repository owner/name: <repo owner>/<repo name>
-  - Working directory: /workspace/<repo name>
-  - Allowed branches: phase/<planned-version>, lane/<planned-version>/<lane-id>
+  - Preferred working directory: /workspace/<repo name>
+  - Allowed branch patterns: phase/<planned-version>, lane/<planned-version>/<lane-id>, copilot/*
   - Target branch for worker PRs: <phase branch>
   - Final merge target: <final merge target>
 - Forbidden:
   - No branch creation in sibling repositories.
   - No PRs outside the locked repository.
-  - No file edits outside /workspace/<repo name>.
+  - No file edits outside the checked out repository root for <repo owner>/<repo name>.
 - Startup gate (required):
-  1.  Print repo remote and active branch for /workspace/<repo name>.
+  1.  Print repo remote, repository root path, and active branch.
   2.  If repo is not <repo owner>/<repo name>, stop and report blocker.
-  3.  If branch target is not phase/<planned-version> or lane/<planned-version>/<lane-id>, stop and report blocker.
-  4.  Continue only after all gates pass.
+  3.  If working directory differs from /workspace/<repo name> but remote matches lock, continue and record path-variance warning.
+  4.  If active branch differs from preferred lane branch but remains in locked repository, continue and record branch-variance warning.
+  5.  Continue only if repository lock and PR gate conditions can still be satisfied.
 - PR gate (required):
   - PR repository must be <repo owner>/<repo name>.
   - PR base must be <phase branch>.
@@ -66,18 +68,19 @@ Template shape to follow for each lane:
 Repository lock directive:
 - Hard scope:
 	- Repository owner/name: <repo owner>/<repo name>
-	- Working directory: /workspace/<repo name>
-	- Allowed branches: phase/<planned-version>, lane/<planned-version>/<lane-id>
+  - Preferred working directory: /workspace/<repo name>
+  - Allowed branch patterns: phase/<planned-version>, lane/<planned-version>/<lane-id>, copilot/*
 	- Target branch for worker PRs: <phase branch>
 	- Final merge target: <final merge target>
 - Forbidden:
 	- No branch creation in sibling repositories.
 	- No PRs outside the locked repository.
-	- No file edits outside /workspace/<repo name>.
+  - No file edits outside the checked out repository root for <repo owner>/<repo name>.
 - Startup gate:
-	1. Print repo remote and active branch for /workspace/<repo name>.
-	2. Stop if repo or branch target does not match contract.
-	3. Continue only after all gates pass.
+  1. Print repo remote, repository root path, and active branch.
+  2. Stop if repository lock does not match <repo owner>/<repo name>.
+  3. If branch/path differ from preferred values but repo lock matches, continue and log branch/path variance warnings in PR summary.
+  4. Continue only if PR gate can be satisfied.
 - PR gate:
 	- PR repository must match lock.
 	- PR base must be <phase branch>.
