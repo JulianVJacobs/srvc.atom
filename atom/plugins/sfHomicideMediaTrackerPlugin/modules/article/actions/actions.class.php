@@ -23,6 +23,8 @@
  */
 class articleActions extends sfActions
 {
+    const FORM_RETRY_FLASH_KEY = 'hmt_article_form_values';
+
     /**
      * Pre-filter: ensure the hmt_article table exists before any action runs.
      */
@@ -45,7 +47,8 @@ class articleActions extends sfActions
         $this->title   = 'Add article';
 
         if ($request->isMethod('post')) {
-            $this->form->bind($request->getParameter('article', []));
+            $values = $request->getParameter('article', []);
+            $this->form->bind($values);
 
             if ($this->form->isValid()) {
                 $this->form->applyToArticle($this->article);
@@ -59,11 +62,20 @@ class articleActions extends sfActions
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article create failed: %s', $e->getMessage())
                     );
+                    $this->storeFormRetryValues($values);
                     $this->getUser()->setFlash('error', 'Could not save the article. Please try again.');
+
+                    return $this->redirect('@hmt_article_new');
                 }
+            } else {
+                $this->storeFormRetryValues($values);
+                $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
+
+                return $this->redirect('@hmt_article_new');
             }
         }
 
+        $this->restoreFormRetryValues($this->form);
         $this->setTemplate('create');
     }
 
@@ -91,7 +103,8 @@ class articleActions extends sfActions
         $this->title = 'Edit article';
 
         if ($request->isMethod('post')) {
-            $this->form->bind($request->getParameter('article', []));
+            $values = $request->getParameter('article', []);
+            $this->form->bind($values);
 
             if ($this->form->isValid()) {
                 $this->form->applyToArticle($this->article);
@@ -105,14 +118,23 @@ class articleActions extends sfActions
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article update failed (id=%s): %s', $this->article->id, $e->getMessage())
                     );
+                    $this->storeFormRetryValues($values);
                     $this->getUser()->setFlash('error', 'Could not update the article. Please try again.');
+
+                    return $this->redirect('@hmt_article?id=' . $this->article->id);
                 }
+            } else {
+                $this->storeFormRetryValues($values);
+                $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
+
+                return $this->redirect('@hmt_article?id=' . $this->article->id);
             }
         } else {
             // GET: populate form defaults from the existing record
             $this->form->populateFromArticle($this->article);
         }
 
+        $this->restoreFormRetryValues($this->form);
         $this->setTemplate('edit');
     }
 
@@ -145,5 +167,24 @@ class articleActions extends sfActions
         }
 
         return $this->redirect('@hmt_article_new');
+    }
+
+    private function storeFormRetryValues(array $values)
+    {
+        $this->getUser()->setFlash(self::FORM_RETRY_FLASH_KEY, $values);
+    }
+
+    private function restoreFormRetryValues(ArticleEditForm $form)
+    {
+        if (!$this->getUser()->hasFlash(self::FORM_RETRY_FLASH_KEY)) {
+            return;
+        }
+
+        $values = $this->getUser()->getFlash(self::FORM_RETRY_FLASH_KEY);
+        if (!is_array($values)) {
+            return;
+        }
+
+        $form->bind($values);
     }
 }
