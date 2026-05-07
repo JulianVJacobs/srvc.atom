@@ -194,6 +194,8 @@ class articleActions extends sfActions
                 continue;
             }
 
+            // Only persist scalar retry values to keep flash payload deterministic
+            // and prevent complex/unexpected structures from being rehydrated.
             if (null === $values[$key] || is_scalar($values[$key])) {
                 $stored[$key] = $values[$key];
             }
