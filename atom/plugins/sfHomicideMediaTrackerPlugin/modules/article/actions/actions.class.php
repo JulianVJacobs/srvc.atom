@@ -55,6 +55,11 @@ class articleActions extends sfActions
                     $this->getUser()->setFlash('notice', 'Article created successfully.');
 
                     return $this->redirect('@hmt_article?id=' . $this->article->id);
+                } catch (QubitHmtArticleLinkageException $e) {
+                    sfContext::getInstance()->getLogger()->err(
+                        sprintf('[sfHomicideMediaTrackerPlugin] article create linkage validation failed: %s', json_encode($e->getDiagnostics()))
+                    );
+                    $this->getUser()->setFlash('error', $e->getMessage());
                 } catch (Exception $e) {
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article create failed: %s', $e->getMessage())
@@ -101,6 +106,15 @@ class articleActions extends sfActions
                     $this->getUser()->setFlash('notice', 'Article updated successfully.');
 
                     return $this->redirect('@hmt_article?id=' . $this->article->id);
+                } catch (QubitHmtArticleLinkageException $e) {
+                    sfContext::getInstance()->getLogger()->err(
+                        sprintf(
+                            '[sfHomicideMediaTrackerPlugin] article update linkage validation failed (id=%s): %s',
+                            $this->article->id,
+                            json_encode($e->getDiagnostics())
+                        )
+                    );
+                    $this->getUser()->setFlash('error', $e->getMessage());
                 } catch (Exception $e) {
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article update failed (id=%s): %s', $this->article->id, $e->getMessage())

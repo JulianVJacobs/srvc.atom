@@ -63,6 +63,10 @@ class ArticleEditForm extends sfForm
                 'label'   => 'Status',
                 'choices' => self::ALLOWED_STATUSES,
             ]),
+
+            'atom_actor_id' => new sfWidgetFormInputHidden(),
+            'atom_record_id' => new sfWidgetFormInputHidden(),
+            'atom_object_id' => new sfWidgetFormInputHidden(),
         ]);
 
         $this->setValidators([
@@ -113,7 +117,26 @@ class ArticleEditForm extends sfForm
                 'required' => 'Status is required.',
                 'invalid'  => 'Please select a valid status.',
             ]),
+
+            'atom_actor_id' => new sfValidatorString([
+                'required' => false,
+                'trim' => true,
+            ]),
+            'atom_record_id' => new sfValidatorString([
+                'required' => false,
+                'trim' => true,
+            ]),
+            'atom_object_id' => new sfValidatorString([
+                'required' => false,
+                'trim' => true,
+            ]),
         ]);
+
+        $this->validatorSchema->setPostValidator(
+            new sfValidatorCallback([
+                'callback' => [$this, 'validateLinkageContract'],
+            ])
+        );
 
         $this->widgetSchema->setNameFormat('article[%s]');
         $this->widgetSchema->setFormFormatterName('list');
@@ -133,6 +156,9 @@ class ArticleEditForm extends sfForm
             'publication_date' => $article->publicationDate,
             'summary'          => $article->summary,
             'status'           => $article->status,
+            'atom_actor_id'    => $article->atomActorId,
+            'atom_record_id'   => $article->atomRecordId,
+            'atom_object_id'   => $article->atomObjectId,
         ]);
     }
 
@@ -151,6 +177,28 @@ class ArticleEditForm extends sfForm
         $article->publicationDate = $values['publication_date'] ?: null;
         $article->summary         = $values['summary'] ?: null;
         $article->status          = $values['status'];
+        $article->atomActorId     = $values['atom_actor_id'] ?: null;
+        $article->atomRecordId    = $values['atom_record_id'] ?: null;
+        $article->atomObjectId    = $values['atom_object_id'] ?: null;
+    }
+
+    public function validateLinkageContract($validator, $values)
+    {
+        $result = QubitHmtArticle::diagnoseLinkage($values);
+
+        if (empty($result['diagnostics'])) {
+            return array_merge($values, $result['normalized']);
+        }
+
+        $errors = new sfValidatorErrorSchema($validator);
+
+        foreach ($result['diagnostics'] as $diagnostic) {
+            $errors->addError(
+                new sfValidatorError($validator, $diagnostic['message']),
+                $diagnostic['field']
+            );
+        }
+
+        throw $errors;
     }
 }
-
