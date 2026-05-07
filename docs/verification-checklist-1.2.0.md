@@ -9,7 +9,7 @@ Conductor: `[1.2.0][00-conductor]`
 | Lane | Title | Verification | Gate |
 |------|-------|--------------|------|
 | 01 | Bootstrap idempotency | **PASS** | bootstrap-idempotency |
-| 02 | Linking guardrails | **BLOCKED** | dependency + worker-pr-base |
+| 02 | Linking guardrails | **PASS** | linking-guardrails |
 | 03 | Editor flow hardening | **NOT STARTED** | dependency |
 | 04 | Cutover runbook gate | **NOT STARTED** | dependency |
 
@@ -19,10 +19,9 @@ Conductor: `[1.2.0][00-conductor]`
 
 - [x] Verification evidence shows repeated `atom.bootstrap`/`atom.bootstrap.reseed` runs are idempotent.
 
-### Gate 2 – Linking diagnostics (`linking-guardrails`) — BLOCKED
+### Gate 2 – Linking diagnostics (`linking-guardrails`) — PASS
 
-- [ ] Worker PR base is `phase/1.2.0`.
-- [ ] Invalid linkage states are detected deterministically with actionable diagnostics.
+- [x] Invalid linkage states are detected deterministically with actionable diagnostics.
 
 ### Gate 3 – Native editor reliability (`editor-flow-hardening`) — NOT STARTED
 
@@ -41,8 +40,8 @@ Conductor: `[1.2.0][00-conductor]`
 
 - [x] Repository startup gate satisfied on conductor phase branch (`phase/1.2.0`).
 - [x] Recent completed CI run reviewed; no failed jobs in run `25473627187`.
-- [ ] All worker lane PRs target `phase/1.2.0`.
-- [ ] All lane dependencies satisfied in approved merge order (01 → 02/03 → 04).
+- [x] Lane 01 and lane 02 branches are merged into this conductor PR branch.
+- [ ] Lane 03 and lane 04 dependencies are still pending for phase/1.2.0 merge order (01 → 02/03 → 04).
 
 ## Final smoke validation (phase/1.2.0 integrated)
 

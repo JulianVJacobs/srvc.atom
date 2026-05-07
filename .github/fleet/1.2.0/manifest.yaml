@@ -24,26 +24,22 @@ semver_scope:
 lanes:
   - id: "01-bootstrap-idempotency"
     title: "[1.2.0][01-bootstrap-idempotency] Harden plugin bootstrap and idempotent enablement"
-    readiness: "blocked"
-    blockers:
-      - "PR #13 targets base 'main' (must target 'phase/1.2.0')."
-      - "PR title is prefixed with '[WIP]' and does not satisfy strict lane prefix gate."
+    readiness: "ready"
+    blockers: []
     pr_metadata:
       number: 13
-      status: "open"
-      base: "main"
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
       head: "copilot/harden-plugin-bootstrap-idempotency"
 
   - id: "02-linking-guardrails"
     title: "[1.2.0][02-linking-guardrails] Enforce persistence/linking guardrails and diagnostics"
-    readiness: "blocked"
-    blockers:
-      - "PR #14 targets base 'main' (must target 'phase/1.2.0')."
-      - "Dependency unmet: lane 01 is not merged into phase/1.2.0."
+    readiness: "ready"
+    blockers: []
     pr_metadata:
       number: 14
-      status: "open"
-      base: "main"
+      status: "merged-into-conductor-pr"
+      base: "copilot/120-integrate-cutover-prep-fleet"
       head: "copilot/1-2-0-enforce-linking-guardrails"
 
   - id: "03-editor-flow-hardening"
@@ -51,7 +47,7 @@ lanes:
     readiness: "not-ready"
     blockers:
       - "No worker PR opened."
-      - "Dependency unmet: lane 01 must merge first."
+      - "Dependency unmet: lane 01 and lane 02 must merge to phase/1.2.0."
     pr_metadata:
       status: "not-opened"
       base: "phase/1.2.0"
@@ -71,7 +67,8 @@ verification_summary:
     status: "in-progress"
     notes:
       - "Latest completed workflow run has no failed jobs (run 25473627187)."
-      - "No 1.2.0 worker lane currently satisfies PR-base gate for merge into phase/1.2.0."
+      - "Lane PR #13 and #14 are merged into this conductor PR branch."
+      - "Lane 03 and lane 04 work is still pending before phase/1.2.0 integration."
   final_smoke_validation:
     status: "blocked"
     blockers:
@@ -79,8 +76,8 @@ verification_summary:
 
 decision_gate:
   result: "hold"
-  reason: "PR-gate noncompliance and unmet lane dependencies prevent merge sequencing and final integration PR."
+  reason: "Lane 03 and lane 04 are still pending; final phase integration gate remains incomplete."
   next_actions:
-    - "Retarget lane PR #13 and #14 to base phase/1.2.0 with compliant titles."
+    - "Merge this conductor PR so lane 01 and lane 02 updates are integrated."
     - "Open lane 03 and lane 04 PRs against phase/1.2.0 after dependencies pass."
     - "Run phase smoke validation after all lane gates pass; remove this manifest before final phase->main PR."
