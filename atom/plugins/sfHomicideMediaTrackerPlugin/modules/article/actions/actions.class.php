@@ -187,7 +187,7 @@ class articleActions extends sfActions
         if (null === $allowedKeys) {
             $allowedKeys = array_keys((new ArticleEditForm())->getWidgetSchema()->getFields());
         }
-        $stored      = [];
+        $stored = [];
 
         foreach ($allowedKeys as $key) {
             if (!array_key_exists($key, $values)) {
