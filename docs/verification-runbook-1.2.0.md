@@ -4,9 +4,9 @@ Lane: `[1.2.0][04-cutover-runbook-gate]`
 
 ## Scope
 
-- Bootstrap idempotency outcome (lane 01)
-- Linking guardrails outcome (lane 02)
-- Native create/edit hardening outcome (lane 03)
+- Bootstrap idempotency outcome (lane 01): verify repeated bootstrap/reset behavior remains deterministic without side effects.
+- Linking guardrails outcome (lane 02): verify invalid linkage states are rejected with deterministic diagnostics.
+- Native create/edit hardening outcome (lane 03): verify create/edit submit, validation retry, and flash/error recovery behavior.
 - Hosted fallback coexistence check
 - Cutover recommendation packet with rollback notes
 
