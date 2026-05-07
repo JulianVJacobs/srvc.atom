@@ -68,10 +68,7 @@ class articleActions extends sfActions
                     return $this->redirect($this->generateUrl('hmt_article_new'));
                 }
             } else {
-                $this->storeFormRetryValues($values);
                 $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
-
-                return $this->redirect($this->generateUrl('hmt_article_new'));
             }
         }
 
@@ -124,10 +121,7 @@ class articleActions extends sfActions
                     return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
                 }
             } else {
-                $this->storeFormRetryValues($values);
                 $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
-
-                return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
             }
         } else {
             // GET: populate form defaults from the existing record
@@ -185,6 +179,6 @@ class articleActions extends sfActions
             return;
         }
 
-        $form->bind($values);
+        $form->setDefaults($values);
     }
 }
