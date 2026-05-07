@@ -46,6 +46,16 @@ class QubitHmtArticleLinkageException extends InvalidArgumentException
  */
 class QubitHmtArticle
 {
+    const LINKAGE_SCHEMA_COLUMNS = [
+        'atom_actor_id',
+        'atom_record_id',
+    ];
+
+    const LINKAGE_LOOKUP_TABLES = [
+        'actor',
+        'information_object',
+    ];
+
     // Status constants
     const STATUS_DRAFT  = 'draft';
     const STATUS_ACTIVE = 'active';
@@ -354,6 +364,10 @@ SQL;
 
     private static function ensureNullableIntColumn($columnName)
     {
+        if (!in_array($columnName, self::LINKAGE_SCHEMA_COLUMNS, true)) {
+            throw new InvalidArgumentException(sprintf('Unsupported linkage schema column "%s".', $columnName));
+        }
+
         $stmt = QubitPdo::prepareAndExecute(
             'SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
             ['hmt_article', $columnName]
@@ -376,6 +390,10 @@ SQL;
 
     private static function databaseRecordExists($table, $id)
     {
+        if (!in_array($table, self::LINKAGE_LOOKUP_TABLES, true)) {
+            throw new InvalidArgumentException(sprintf('Unsupported linkage lookup table "%s".', $table));
+        }
+
         $stmt = QubitPdo::prepareAndExecute(
             sprintf('SELECT 1 FROM %s WHERE id = ? LIMIT 1', $table),
             [$id]

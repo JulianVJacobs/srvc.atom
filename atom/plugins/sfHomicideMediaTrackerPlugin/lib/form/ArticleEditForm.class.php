@@ -64,6 +64,8 @@ class ArticleEditForm extends sfForm
                 'choices' => self::ALLOWED_STATUSES,
             ]),
 
+            // Hidden contract fields preserve existing routing/UI while allowing
+            // programmatic submissions to carry validated linkage identifiers.
             'atom_actor_id' => new sfWidgetFormInputHidden(),
             'atom_record_id' => new sfWidgetFormInputHidden(),
             'atom_object_id' => new sfWidgetFormInputHidden(),
