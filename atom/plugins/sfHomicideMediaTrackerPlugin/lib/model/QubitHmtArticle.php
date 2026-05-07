@@ -365,7 +365,7 @@ SQL;
     private static function ensureNullableIntColumn($columnName)
     {
         if (!in_array($columnName, self::LINKAGE_SCHEMA_COLUMNS, true)) {
-            throw new InvalidArgumentException(sprintf('Unsupported linkage schema column "%s".', $columnName));
+            throw new InvalidArgumentException(sprintf('Invalid linkage schema column "%s".', $columnName));
         }
 
         $stmt = QubitPdo::prepareAndExecute(
@@ -391,9 +391,11 @@ SQL;
     private static function databaseRecordExists($table, $id)
     {
         if (!in_array($table, self::LINKAGE_LOOKUP_TABLES, true)) {
-            throw new InvalidArgumentException(sprintf('Unsupported linkage lookup table "%s".', $table));
+            throw new InvalidArgumentException(sprintf('Invalid linkage lookup table "%s".', $table));
         }
 
+        // The table name is limited to LINKAGE_LOOKUP_TABLES above so the
+        // interpolated identifier is restricted to known AtoM core tables.
         $stmt = QubitPdo::prepareAndExecute(
             sprintf('SELECT 1 FROM %s WHERE id = ? LIMIT 1', $table),
             [$id]
