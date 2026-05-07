@@ -2,21 +2,66 @@
 
 ## Active track
 
-- Version: `1.1.0`
-- Track: Native-path hardening and migration foundation
+- Version: `1.2.0` (proposed)
+- Track: Native-path cutover preparation and operations hardening
 - Ownership: `srvc.atom`
-- Status: planning-ready (approved to proceed)
+- Status: awaiting contract approval
 
-## Active update (2026-05-06)
+## Active update (2026-05-07)
 
 - Completed baseline:
   - Phase `1.0.0` fully completed and merged to `main`.
   - Native article plugin first draft established with closed PR/issues and removed phase manifest.
   - Client direction confirmed: continue on native AtoM plugin path.
+  - Phase `1.1.0` hardening/migration-foundation fleet fully completed and merged to `main` via PR `#6`.
 - Remaining scope in this phase:
-  - Launch and complete phase `1.1.0` hardening/migration-foundation work.
+  - Approve and launch phase `1.2.0` cutover-preparation work.
 - Next slice:
-  - Execute phase `1.1.0` lanes in dependency order and cut final integration PR to `origin/main`.
+  - Execute phase `1.2.0` lanes in dependency order and cut final integration PR to `origin/main`.
+
+## Phase 1.2.0 contract (proposed)
+
+- Phase name: Native article cutover prep + operational hardening
+- Planned version: `1.2.0`
+- Allowed change class: minor (additive operational and migration-readiness changes)
+- Merge policy: eager-after-green into `phase/1.2.0`, then one final PR to `origin/main`
+- Phase branch: `phase/1.2.0`
+- Final merge target: `origin/main`
+- Semver escalation rule:
+  - Escalate before implementation if changes require AtoM core patching, backward-incompatible persistence contract changes, or hosted fallback removal in this line.
+
+### 1.2.0 lane decomposition
+
+- `[1.2.0][00-conductor]` Integrate phase `1.2.0` cutover-prep fleet
+  - Owned surface: phase governance, manifest lifecycle, merge sequencing, final PR
+- `[1.2.0][01-bootstrap-idempotency]` Harden plugin bootstrap and idempotent enablement
+  - Owned surface: bootstrap/reset scripts and plugin enablement checks
+- `[1.2.0][02-linking-guardrails]` Enforce persistence/linking guardrails and diagnostics
+  - Owned surface: plugin linking validation, diagnostics, and contract conformance tests
+- `[1.2.0][03-editor-flow-hardening]` Improve native create/edit operational behavior
+  - Owned surface: article form submission reliability, flash/error behavior, and recovery UX
+- `[1.2.0][04-cutover-runbook-gate]` Produce cutover readiness packet and recommendation
+  - Owned surface: verification checklist, runbook updates, rollback notes, go/no-go decision summary
+
+### 1.2.0 dependencies and merge order
+
+- Dependencies:
+  - Lane 02 depends on lane 01.
+  - Lane 03 depends on lane 01 and can run parallel with lane 02 once bootstrap baseline is stable.
+  - Lane 04 depends on lanes 02 and 03.
+- Merge order:
+  - Merge 01 first.
+  - Merge 02 and 03 after 01 (order based on conflict surface at review time).
+  - Merge 04 last.
+  - Conductor opens one final PR from `phase/1.2.0` to `origin/main`.
+
+### 1.2.0 acceptance gates
+
+- Plugin bootstrap and enablement are idempotent across reseed/restart paths.
+- Article persistence/linking diagnostics catch invalid linkage states deterministically.
+- Native create/edit flow remains stable under validation and retry paths.
+- Hosted fallback remains available during the phase.
+- Cutover packet includes residual risks, rollback path, and explicit go/no-go recommendation.
 
 ## Phase 1.1.0 contract (launch-ready)
 
