@@ -1,0 +1,23 @@
+# sfArticlePlugin application configuration
+#
+# All plugin-owned settings live under the sfArticlePlugin key.
+# Downstream lanes may add their own sections without touching this baseline.
+#
+# Lane: [1.1.0][01-native-shell-contract]
+
+all:
+  sfArticlePlugin:
+    # Semver of the plugin shell.  Bump when breaking changes are introduced.
+    version: 1.1.0
+
+    # Hosted-fallback coexistence flag.
+    # When true the hosted workbench article route remains active alongside the
+    # native plugin route.  Set to false only after explicit client sign-off.
+    hosted_fallback_enabled: true
+
+    # Hosted workbench base URL used for the coexistence fallback link.
+    # Override via environment variable ATOM_WORKBENCH_BASE_URL at stack level.
+    hosted_workbench_base_url: ~
+
+    # Maximum number of article records returned per list request.
+    list_page_size: 20
