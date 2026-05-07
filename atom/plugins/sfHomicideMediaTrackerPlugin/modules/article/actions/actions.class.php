@@ -57,7 +57,7 @@ class articleActions extends sfActions
                     $this->article->insert();
                     $this->getUser()->setFlash('notice', 'Article created successfully.');
 
-                    return $this->redirect('@hmt_article?id=' . $this->article->id);
+                    return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
                 } catch (Exception $e) {
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article create failed: %s', $e->getMessage())
@@ -113,7 +113,7 @@ class articleActions extends sfActions
                     $this->article->update();
                     $this->getUser()->setFlash('notice', 'Article updated successfully.');
 
-                    return $this->redirect('@hmt_article?id=' . $this->article->id);
+                    return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
                 } catch (Exception $e) {
                     sfContext::getInstance()->getLogger()->err(
                         sprintf('[sfHomicideMediaTrackerPlugin] article update failed (id=%s): %s', $this->article->id, $e->getMessage())
@@ -127,7 +127,7 @@ class articleActions extends sfActions
                 $this->storeFormRetryValues($values);
                 $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
 
-                return $this->redirect('@hmt_article?id=' . $this->article->id);
+                return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
             }
         } else {
             // GET: populate form defaults from the existing record
@@ -186,5 +186,6 @@ class articleActions extends sfActions
         }
 
         $form->bind($values);
+        $form->isValid();
     }
 }
