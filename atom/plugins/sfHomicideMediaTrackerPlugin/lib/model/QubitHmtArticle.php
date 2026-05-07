@@ -56,6 +56,9 @@ class QubitHmtArticle
         'information_object',
     ];
 
+    const ACTOR_LOOKUP_SQL = 'SELECT 1 FROM actor WHERE id = ? LIMIT 1';
+    const RECORD_LOOKUP_SQL = 'SELECT 1 FROM information_object WHERE id = ? LIMIT 1';
+
     // Status constants
     const STATUS_DRAFT  = 'draft';
     const STATUS_ACTIVE = 'active';
@@ -251,8 +254,11 @@ SQL;
             'atom_object_id' => self::normalizeNullableInt($values, 'atom_object_id', $diagnostics),
         ];
 
-        if (null !== $normalized['atom_record_id'] && null !== $normalized['atom_object_id']
-            && $normalized['atom_record_id'] !== $normalized['atom_object_id']) {
+        $recordAliasMismatch = null !== $normalized['atom_record_id']
+            && null !== $normalized['atom_object_id']
+            && $normalized['atom_record_id'] !== $normalized['atom_object_id'];
+
+        if ($recordAliasMismatch) {
             $diagnostics[] = [
                 'field' => 'atom_record_id',
                 'code' => 'record_link_alias_mismatch',
@@ -394,12 +400,13 @@ SQL;
             throw new InvalidArgumentException(sprintf('Invalid linkage lookup table "%s".', $table));
         }
 
-        // The table name is limited to LINKAGE_LOOKUP_TABLES above so the
-        // interpolated identifier is restricted to known AtoM core tables.
-        $stmt = QubitPdo::prepareAndExecute(
-            sprintf('SELECT 1 FROM %s WHERE id = ? LIMIT 1', $table),
-            [$id]
-        );
+        if ('actor' === $table) {
+            $sql = self::ACTOR_LOOKUP_SQL;
+        } else {
+            $sql = self::RECORD_LOOKUP_SQL;
+        }
+
+        $stmt = QubitPdo::prepareAndExecute($sql, [$id]);
 
         return false !== $stmt->fetchColumn();
     }

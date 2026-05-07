@@ -35,12 +35,15 @@ class HmtLinkageGuardrailAssertions
     }
 }
 
+define('HMT_VALID_ACTOR_ID', 7);
+define('HMT_VALID_RECORD_ID', 42);
+
 $actorExists = function ($id) {
-    return 7 === $id;
+    return HMT_VALID_ACTOR_ID === $id;
 };
 
 $recordExists = function ($id) {
-    return 42 === $id;
+    return HMT_VALID_RECORD_ID === $id;
 };
 
 $noLinkage = QubitHmtArticle::diagnoseLinkage([], $actorExists, $recordExists);
@@ -49,11 +52,11 @@ HmtLinkageGuardrailAssertions::assertSameValue(null, $noLinkage['normalized']['a
 HmtLinkageGuardrailAssertions::assertSameValue(null, $noLinkage['normalized']['atom_record_id'], 'Blank record id should normalize to null.');
 
 $legacyAlias = QubitHmtArticle::diagnoseLinkage([
-    'atom_object_id' => '42',
+    'atom_object_id' => (string) HMT_VALID_RECORD_ID,
 ], $actorExists, $recordExists);
 HmtLinkageGuardrailAssertions::assertCountValue(0, $legacyAlias['diagnostics'], 'Legacy atom_object_id alias should remain accepted.');
-HmtLinkageGuardrailAssertions::assertSameValue(42, $legacyAlias['normalized']['atom_record_id'], 'Legacy atom_object_id should normalize to atom_record_id.');
-HmtLinkageGuardrailAssertions::assertSameValue(42, $legacyAlias['normalized']['atom_object_id'], 'Legacy atom_object_id should be preserved after normalization.');
+HmtLinkageGuardrailAssertions::assertSameValue(HMT_VALID_RECORD_ID, $legacyAlias['normalized']['atom_record_id'], 'Legacy atom_object_id should normalize to atom_record_id.');
+HmtLinkageGuardrailAssertions::assertSameValue(HMT_VALID_RECORD_ID, $legacyAlias['normalized']['atom_object_id'], 'Legacy atom_object_id should be preserved after normalization.');
 
 $invalidActor = QubitHmtArticle::diagnoseLinkage([
     'atom_actor_id' => 'abc',
@@ -71,7 +74,7 @@ $missingRecord = QubitHmtArticle::diagnoseLinkage([
 HmtLinkageGuardrailAssertions::assertDiagnosticCode('missing_record_link_target', $missingRecord['diagnostics'], 'Unknown record ids should report a missing archival description.');
 
 $mismatchedAlias = QubitHmtArticle::diagnoseLinkage([
-    'atom_record_id' => '42',
+    'atom_record_id' => (string) HMT_VALID_RECORD_ID,
     'atom_object_id' => '99',
 ], $actorExists, $recordExists);
 HmtLinkageGuardrailAssertions::assertDiagnosticCode('record_link_alias_mismatch', $mismatchedAlias['diagnostics'], 'Mismatched legacy and contract record ids should be rejected.');
