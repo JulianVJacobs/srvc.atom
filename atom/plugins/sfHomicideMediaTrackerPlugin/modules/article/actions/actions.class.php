@@ -65,13 +65,13 @@ class articleActions extends sfActions
                     $this->storeFormRetryValues($values);
                     $this->getUser()->setFlash('error', 'Could not save the article. Please try again.');
 
-                    return $this->redirect('@hmt_article_new');
+                    return $this->redirect($this->generateUrl('hmt_article_new'));
                 }
             } else {
                 $this->storeFormRetryValues($values);
                 $this->getUser()->setFlash('error', 'Please review the highlighted fields and try again.');
 
-                return $this->redirect('@hmt_article_new');
+                return $this->redirect($this->generateUrl('hmt_article_new'));
             }
         }
 
@@ -121,7 +121,7 @@ class articleActions extends sfActions
                     $this->storeFormRetryValues($values);
                     $this->getUser()->setFlash('error', 'Could not update the article. Please try again.');
 
-                    return $this->redirect('@hmt_article?id=' . $this->article->id);
+                    return $this->redirect($this->generateUrl('hmt_article', ['id' => $this->article->id]));
                 }
             } else {
                 $this->storeFormRetryValues($values);
@@ -186,6 +186,7 @@ class articleActions extends sfActions
         }
 
         $form->bind($values);
+        // Trigger validation so inline field errors are populated after PRG recovery.
         $form->isValid();
     }
 }
